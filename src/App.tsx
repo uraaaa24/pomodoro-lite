@@ -1,5 +1,4 @@
 import { BarChart3, Settings as SettingsIcon } from "lucide-react";
-import { useState } from "react";
 
 import { useDailyFocusSummary } from "./hooks/useDailyFocusSummary";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
@@ -21,8 +20,8 @@ export const App = () => {
   const { state, durations, handlePause, handleReset, handleStart, handleSwitchMode } = usePomodoroTimer(
     settings.autoStartNextSession,
   );
+  const focusSummaryPanel = useSettingsPanel();
   const settingsPanel = useSettingsPanel();
-  const [isFocusSummaryOpen, setIsFocusSummaryOpen] = useState(false);
   const dailyFocusSummary = useDailyFocusSummary(state.lastCompletedSession);
   const statusMessage = useSessionCompletion({ lastCompletedSession: state.lastCompletedSession, settings });
 
@@ -41,15 +40,18 @@ export const App = () => {
       settingsPanel.close();
     }
 
-    setIsFocusSummaryOpen((current) => !current);
+    focusSummaryPanel.toggle();
   };
 
   const handleFocusSummaryClose = () => {
-    setIsFocusSummaryOpen(false);
+    focusSummaryPanel.close();
   };
 
   const handleSettingsToggle = () => {
-    setIsFocusSummaryOpen(false);
+    if (focusSummaryPanel.isOpen) {
+      focusSummaryPanel.close();
+    }
+
     settingsPanel.toggle();
   };
 
@@ -81,10 +83,12 @@ export const App = () => {
         />
         <Button
           aria-controls="today-focus-panel"
-          aria-expanded={isFocusSummaryOpen}
+          aria-expanded={focusSummaryPanel.isOpen}
+          aria-haspopup="dialog"
           aria-label="Open focus summary"
           className="absolute top-0 left-2 bg-white/70"
           onClick={handleFocusSummaryToggle}
+          ref={focusSummaryPanel.buttonRef}
           size="icon"
         >
           <BarChart3 aria-hidden="true" size={18} strokeWidth={2} />
@@ -92,6 +96,7 @@ export const App = () => {
         <Button
           aria-controls="settings-panel"
           aria-expanded={settingsPanel.isOpen}
+          aria-haspopup="dialog"
           aria-label="Open preferences"
           className="absolute top-0 right-2 bg-white/70"
           onClick={handleSettingsToggle}
@@ -100,11 +105,13 @@ export const App = () => {
         >
           <SettingsIcon aria-hidden="true" size={18} strokeWidth={2} />
         </Button>
-        {isFocusSummaryOpen ? (
-          <TodayFocusSummary
-            summary={dailyFocusSummary}
-            onClose={handleFocusSummaryClose}
-          />
+        {focusSummaryPanel.isOpen ? (
+          <div ref={focusSummaryPanel.panelRef}>
+            <TodayFocusSummary
+              summary={dailyFocusSummary}
+              onClose={handleFocusSummaryClose}
+            />
+          </div>
         ) : null}
         {settingsPanel.isOpen ? (
           <div ref={settingsPanel.panelRef}>
