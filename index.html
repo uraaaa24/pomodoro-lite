@@ -13,6 +13,7 @@
       <section class="hero-card">
         <div class="hero-copy">
           <p class="eyebrow">Pomodoro Lite</p>
+          <span class="paper-chip">focus / rest / repeat</span>
           <h1 id="app-title">集中と休憩を、軽やかに切り替える。</h1>
           <p class="lead">
             25分の作業、5分の短い休憩、4セットごとの長い休憩をワンクリックで管理できます。
@@ -20,6 +21,8 @@
         </div>
 
         <div class="timer-panel" aria-live="polite">
+          <span class="tape tape-top" aria-hidden="true"></span>
+          <span class="tape tape-bottom" aria-hidden="true"></span>
           <div class="mode-tabs" role="tablist" aria-label="タイマーモード">
             <button class="mode-tab active" type="button" data-mode="focus">作業</button>
             <button class="mode-tab" type="button" data-mode="shortBreak">短い休憩</button>
@@ -57,6 +60,7 @@
       </section>
 
       <section class="settings-card" aria-labelledby="settings-title">
+        <span class="paper-pin" aria-hidden="true"></span>
         <div>
           <p class="eyebrow">Settings</p>
           <h2 id="settings-title">時間を調整</h2>
