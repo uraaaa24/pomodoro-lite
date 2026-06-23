@@ -5,30 +5,30 @@ import {
   getInitialDuration,
   getNextMode,
 } from "../lib/pomodoro";
-import type { PomodoroMode, TimerAction, TimerDurations, TimerState } from "../types/pomodoro";
+import { TIMER_ACTION, type PomodoroMode, type TimerAction, type TimerDurations, type TimerState } from "../types/pomodoro";
 
 const TICK_INTERVAL_MS = 1000;
 
-function timerReducer(state: TimerState, action: TimerAction): TimerState {
+const timerReducer = (state: TimerState, action: TimerAction): TimerState => {
   switch (action.type) {
-    case "start":
+    case TIMER_ACTION.START:
       return { ...state, isRunning: true };
-    case "pause":
+    case TIMER_ACTION.PAUSE:
       return { ...state, isRunning: false };
-    case "reset":
+    case TIMER_ACTION.RESET:
       return {
         ...state,
         remainingSeconds: getInitialDuration(state.currentMode),
         isRunning: false,
       };
-    case "switchMode":
+    case TIMER_ACTION.SWITCH_MODE:
       return {
         ...state,
         currentMode: action.mode,
         remainingSeconds: getInitialDuration(action.mode),
         isRunning: false,
       };
-    case "tick": {
+    case TIMER_ACTION.TICK: {
       const nextRemainingSeconds = state.remainingSeconds - 1;
 
       if (nextRemainingSeconds > 0) {
@@ -47,10 +47,10 @@ function timerReducer(state: TimerState, action: TimerAction): TimerState {
       };
     }
   }
-}
+};
 
-export function usePomodoroTimer() {
-  const [state, dispatch] = useReducer(timerReducer, undefined, () => createInitialTimerState());
+export const usePomodoroTimer = () => {
+  const [state, dispatch] = useReducer(timerReducer, createInitialTimerState());
   const durations: TimerDurations = DEFAULT_DURATIONS;
 
   useEffect(() => {
@@ -58,26 +58,26 @@ export function usePomodoroTimer() {
       return undefined;
     }
 
-    const intervalId = window.setInterval(() => dispatch({ type: "tick" }), TICK_INTERVAL_MS);
+    const intervalId = window.setInterval(() => dispatch({ type: TIMER_ACTION.TICK }), TICK_INTERVAL_MS);
 
     return () => window.clearInterval(intervalId);
   }, [state.isRunning]);
 
-  function handleStart() {
-    dispatch({ type: "start" });
-  }
+  const handleStart = () => {
+    dispatch({ type: TIMER_ACTION.START });
+  };
 
-  function handlePause() {
-    dispatch({ type: "pause" });
-  }
+  const handlePause = () => {
+    dispatch({ type: TIMER_ACTION.PAUSE });
+  };
 
-  function handleReset() {
-    dispatch({ type: "reset" });
-  }
+  const handleReset = () => {
+    dispatch({ type: TIMER_ACTION.RESET });
+  };
 
-  function handleSwitchMode(mode: PomodoroMode) {
-    dispatch({ type: "switchMode", mode });
-  }
+  const handleSwitchMode = (mode: PomodoroMode) => {
+    dispatch({ type: TIMER_ACTION.SWITCH_MODE, mode });
+  };
 
   return {
     state,
@@ -87,4 +87,4 @@ export function usePomodoroTimer() {
     handleReset,
     handleSwitchMode,
   };
-}
+};

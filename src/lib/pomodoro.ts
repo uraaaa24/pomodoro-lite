@@ -26,37 +26,34 @@ export const MODE_TAB_LABELS: Record<PomodoroMode, string> = {
 
 export const POMODORO_MODES: PomodoroMode[] = ["focus", "shortBreak", "longBreak"];
 
-export function getInitialDuration(mode: PomodoroMode, durations: TimerDurations = DEFAULT_DURATIONS) {
-  return durations[mode];
-}
+export const getInitialDuration = (mode: PomodoroMode, durations: TimerDurations = DEFAULT_DURATIONS) =>
+  durations[mode];
 
-export function createInitialTimerState(initialMode: PomodoroMode = "focus"): TimerState {
-  return {
-    currentMode: initialMode,
-    remainingSeconds: getInitialDuration(initialMode),
-    completedFocusSessions: 0,
-    isRunning: false,
-  };
-}
+export const createInitialTimerState = (initialMode: PomodoroMode = "focus"): TimerState => ({
+  currentMode: initialMode,
+  remainingSeconds: getInitialDuration(initialMode),
+  completedFocusSessions: 0,
+  isRunning: false,
+});
 
-export function formatTime(totalSeconds: number) {
+export const formatTime = (totalSeconds: number) => {
   const minutes = Math.floor(totalSeconds / SECONDS_PER_MINUTE)
     .toString()
     .padStart(2, "0");
   const seconds = (totalSeconds % SECONDS_PER_MINUTE).toString().padStart(2, "0");
 
   return `${minutes}:${seconds}`;
-}
+};
 
-export function getNextMode(currentMode: PomodoroMode, completedFocusSessions: number): PomodoroMode {
+export const getNextMode = (currentMode: PomodoroMode, completedFocusSessions: number): PomodoroMode => {
   if (currentMode !== "focus") {
     return "focus";
   }
 
   return completedFocusSessions % LONG_BREAK_INTERVAL === 0 ? "longBreak" : "shortBreak";
-}
+};
 
-export function getProgressRatio(state: TimerState, durations: TimerDurations = DEFAULT_DURATIONS) {
+export const getProgressRatio = (state: TimerState, durations: TimerDurations = DEFAULT_DURATIONS) => {
   const totalSeconds = durations[state.currentMode];
 
   if (totalSeconds === 0) {
@@ -64,4 +61,4 @@ export function getProgressRatio(state: TimerState, durations: TimerDurations = 
   }
 
   return Math.min(Math.max(1 - state.remainingSeconds / totalSeconds, 0), 1);
-}
+};

@@ -5,7 +5,7 @@ type TimerControlsProps = {
   onStart: () => void;
 };
 
-export function TimerControls({ isRunning, onPause, onReset, onStart }: TimerControlsProps) {
+export const TimerControls = ({ isRunning, onPause, onReset, onStart }: TimerControlsProps) => {
   const handlePrimaryAction = isRunning ? onPause : onStart;
 
   return (
@@ -18,4 +18,4 @@ export function TimerControls({ isRunning, onPause, onReset, onStart }: TimerCon
       </button>
     </div>
   );
-}
+};

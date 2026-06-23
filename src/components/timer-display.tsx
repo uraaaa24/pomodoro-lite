@@ -6,7 +6,7 @@ type TimerDisplayProps = {
   durations: TimerDurations;
 };
 
-export function TimerDisplay({ state, durations }: TimerDisplayProps) {
+export const TimerDisplay = ({ state, durations }: TimerDisplayProps) => {
   const progressPercent = getProgressRatio(state, durations) * 100;
   const formattedTime = formatTime(state.remainingSeconds);
 
@@ -23,4 +23,4 @@ export function TimerDisplay({ state, durations }: TimerDisplayProps) {
       </div>
     </section>
   );
-}
+};

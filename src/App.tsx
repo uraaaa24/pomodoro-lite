@@ -1,11 +1,11 @@
 import { useEffect } from "react";
-import { ModeTabs } from "./components/ModeTabs";
-import { TimerControls } from "./components/TimerControls";
-import { TimerDisplay } from "./components/TimerDisplay";
-import { MODE_LABELS, formatTime } from "./lib/pomodoro";
+import { ModeTabs } from "./components/mode-tabs";
+import { TimerControls } from "./components/timer-controls";
+import { TimerDisplay } from "./components/timer-display";
 import { usePomodoroTimer } from "./hooks/usePomodoroTimer";
+import { MODE_LABELS, formatTime } from "./lib/pomodoro";
 
-export function App() {
+export const App = () => {
   const { state, durations, handlePause, handleReset, handleStart, handleSwitchMode } = usePomodoroTimer();
 
   useEffect(() => {
@@ -33,4 +33,4 @@ export function App() {
       </section>
     </main>
   );
-}
+};
