@@ -3,15 +3,15 @@ type TimerMode = "focus" | "shortBreak" | "longBreak";
 type Durations = Record<TimerMode, number>;
 
 const modeLabels: Record<TimerMode, string> = {
-  focus: "作業セッション",
-  shortBreak: "短い休憩",
-  longBreak: "長い休憩",
+  focus: "Focus Session",
+  shortBreak: "Short Break",
+  longBreak: "Long Break",
 };
 
 const nextLabels: Record<TimerMode, string> = {
-  focus: "短い休憩",
-  shortBreak: "作業",
-  longBreak: "作業",
+  focus: "Short Break",
+  shortBreak: "Focus",
+  longBreak: "Focus",
 };
 
 const defaultDurations: Durations = {
@@ -70,7 +70,7 @@ function render() {
   }
 
   if (toggleButton) {
-    toggleButton.textContent = isRunning ? "一時停止" : "スタート";
+    toggleButton.textContent = isRunning ? "Pause" : "Start";
   }
 
   if (completedCount) {
@@ -82,7 +82,7 @@ function render() {
   }
 
   if (nextSession) {
-    nextSession.textContent = currentMode === "focus" && (completedFocusSessions + 1) % 4 === 0 ? "長い休憩" : nextLabels[currentMode];
+    nextSession.textContent = currentMode === "focus" && (completedFocusSessions + 1) % 4 === 0 ? "Long Break" : nextLabels[currentMode];
   }
 
   modeTabs.forEach((tab) => {

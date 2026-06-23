@@ -13,9 +13,12 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "pomodoro-lite",
-        "width": 800,
-        "height": 600
+        "title": "Pomodoro Lite",
+        "width": 560,
+        "height": 720,
+        "minWidth": 360,
+        "minHeight": 560,
+        "resizable": true
       }
     ],
     "security": {
