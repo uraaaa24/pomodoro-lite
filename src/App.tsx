@@ -1,23 +1,50 @@
-import { useEffect } from "react";
-import { ModeTabs } from "./components/mode-tabs";
-import { TimerControls } from "./components/timer-controls";
-import { TimerDisplay } from "./components/timer-display";
+import { Settings as SettingsIcon } from "lucide-react";
+
+import { useDocumentTitle } from "./hooks/useDocumentTitle";
+import { usePomodoroSettings } from "./hooks/usePomodoroSettings";
 import { usePomodoroTimer } from "./hooks/usePomodoroTimer";
+import { useSessionCompletion } from "./hooks/useSessionCompletion";
+import { useSettingsPanel } from "./hooks/useSettingsPanel";
 import { MODE_LABELS, formatTime } from "./lib/pomodoro";
+import { prepareSessionCueSound } from "./lib/session-cues";
+import ModeTabs from "./components/mode-tabs";
+import Button from "./components/shared/button";
+import TimerControls from "./components/timer-controls";
+import TimerDisplay from "./components/timer-display";
+import TimerSettings from "./components/timer-settings";
 
 export const App = () => {
-  const { state, durations, handlePause, handleReset, handleStart, handleSwitchMode } = usePomodoroTimer();
+  const { settings, updateSetting } = usePomodoroSettings();
+  const { state, durations, handlePause, handleReset, handleStart, handleSwitchMode } = usePomodoroTimer(
+    settings.autoStartNextSession,
+  );
+  const settingsPanel = useSettingsPanel();
+  const statusMessage = useSessionCompletion({ lastCompletedSession: state.lastCompletedSession, settings });
 
-  useEffect(() => {
-    document.title = `${formatTime(state.remainingSeconds)} - ${MODE_LABELS[state.currentMode]} | Pomodoro Lite`;
-  }, [state.currentMode, state.remainingSeconds]);
+  useDocumentTitle(`${formatTime(state.remainingSeconds)} - ${MODE_LABELS[state.currentMode]} | Pomodoro Lite`);
+
+  const handleStartWithSound = () => {
+    if (settings.soundEnabled) {
+      void prepareSessionCueSound();
+    }
+
+    handleStart();
+  };
+
+  const handleSettingsUpdate = <Key extends keyof typeof settings>(key: Key, value: (typeof settings)[Key]) => {
+    if (key === "soundEnabled" && value) {
+      void prepareSessionCueSound();
+    }
+
+    updateSetting(key, value);
+  };
 
   return (
-    <main className="app-shell" aria-labelledby="app-title">
-      <section className="timer-tool" aria-live="polite">
-        <header className="app-header">
-          <p className="app-kicker">Pomodoro Lite</p>
-          <h1 className="app-title" id="app-title">
+    <main className="grid min-h-screen place-items-center px-5" aria-labelledby="app-title">
+      <section className="relative w-full max-w-xs px-2 text-center">
+        <header className="mb-5">
+          <p className="mt-0 mb-2 text-xs font-medium tracking-[0.18em] text-[#8a8d88] uppercase">Pomodoro Lite</p>
+          <h1 className="m-0 text-base font-medium tracking-[-0.01em] text-[#333432]" id="app-title">
             Quiet timer for deep work
           </h1>
         </header>
@@ -28,8 +55,31 @@ export const App = () => {
           isRunning={state.isRunning}
           onPause={handlePause}
           onReset={handleReset}
-          onStart={handleStart}
+          onStart={handleStartWithSound}
         />
+        <Button
+          aria-controls="settings-panel"
+          aria-expanded={settingsPanel.isOpen}
+          aria-label="Open preferences"
+          className="absolute top-0 right-2 bg-white/70"
+          onClick={settingsPanel.toggle}
+          ref={settingsPanel.buttonRef}
+          size="icon"
+        >
+          <SettingsIcon aria-hidden="true" size={18} strokeWidth={2} />
+        </Button>
+        {settingsPanel.isOpen ? (
+          <div ref={settingsPanel.panelRef}>
+            <TimerSettings
+              settings={settings}
+              onClose={settingsPanel.close}
+              onUpdateSetting={handleSettingsUpdate}
+            />
+          </div>
+        ) : null}
+        <p className="sr-only" role="status">
+          {statusMessage}
+        </p>
       </section>
     </main>
   );
