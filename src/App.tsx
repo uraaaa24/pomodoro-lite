@@ -1,10 +1,11 @@
-import { Settings as SettingsIcon } from "lucide-react";
+import { BarChart3, Settings as SettingsIcon } from "lucide-react";
 
+import { useDailyFocusSummary } from "./hooks/useDailyFocusSummary";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { usePomodoroSettings } from "./hooks/usePomodoroSettings";
 import { usePomodoroTimer } from "./hooks/usePomodoroTimer";
 import { useSessionCompletion } from "./hooks/useSessionCompletion";
-import { useSettingsPanel } from "./hooks/useSettingsPanel";
+import { usePanelGroup } from "./hooks/usePanelGroup";
 import { MODE_LABELS, formatTime } from "./lib/pomodoro";
 import { prepareSessionCueSound } from "./lib/session-cues";
 import ModeTabs from "./components/mode-tabs";
@@ -12,13 +13,15 @@ import Button from "./components/shared/button";
 import TimerControls from "./components/timer-controls";
 import TimerDisplay from "./components/timer-display";
 import TimerSettings from "./components/timer-settings";
+import TodayFocusSummary from "./components/today-focus-summary";
 
 export const App = () => {
   const { settings, updateSetting } = usePomodoroSettings();
   const { state, durations, handlePause, handleReset, handleStart, handleSwitchMode } = usePomodoroTimer(
     settings.autoStartNextSession,
   );
-  const settingsPanel = useSettingsPanel();
+  const panels = usePanelGroup();
+  const dailyFocusSummary = useDailyFocusSummary(state.lastCompletedSession);
   const statusMessage = useSessionCompletion({ lastCompletedSession: state.lastCompletedSession, settings });
 
   useDocumentTitle(`${formatTime(state.remainingSeconds)} - ${MODE_LABELS[state.currentMode]} | Pomodoro Lite`);
@@ -29,6 +32,18 @@ export const App = () => {
     }
 
     handleStart();
+  };
+
+  const handleFocusSummaryToggle = () => {
+    panels.toggle("focusSummary");
+  };
+
+  const handleFocusSummaryClose = () => {
+    panels.close("focusSummary");
+  };
+
+  const handleSettingsToggle = () => {
+    panels.toggle("settings");
   };
 
   const handleSettingsUpdate = <Key extends keyof typeof settings>(key: Key, value: (typeof settings)[Key]) => {
@@ -58,21 +73,42 @@ export const App = () => {
           onStart={handleStartWithSound}
         />
         <Button
+          aria-controls="today-focus-panel"
+          aria-expanded={panels.isOpen("focusSummary")}
+          aria-haspopup="dialog"
+          aria-label="Open focus summary"
+          className="absolute top-0 left-2 bg-white/70"
+          onClick={handleFocusSummaryToggle}
+          ref={panels.getButtonRef("focusSummary")}
+          size="icon"
+        >
+          <BarChart3 aria-hidden="true" size={18} strokeWidth={2} />
+        </Button>
+        <Button
           aria-controls="settings-panel"
-          aria-expanded={settingsPanel.isOpen}
+          aria-expanded={panels.isOpen("settings")}
+          aria-haspopup="dialog"
           aria-label="Open preferences"
           className="absolute top-0 right-2 bg-white/70"
-          onClick={settingsPanel.toggle}
-          ref={settingsPanel.buttonRef}
+          onClick={handleSettingsToggle}
+          ref={panels.getButtonRef("settings")}
           size="icon"
         >
           <SettingsIcon aria-hidden="true" size={18} strokeWidth={2} />
         </Button>
-        {settingsPanel.isOpen ? (
-          <div ref={settingsPanel.panelRef}>
+        {panels.isOpen("focusSummary") ? (
+          <div ref={panels.getPanelRef("focusSummary")}>
+            <TodayFocusSummary
+              summary={dailyFocusSummary}
+              onClose={handleFocusSummaryClose}
+            />
+          </div>
+        ) : null}
+        {panels.isOpen("settings") ? (
+          <div ref={panels.getPanelRef("settings")}>
             <TimerSettings
               settings={settings}
-              onClose={settingsPanel.close}
+              onClose={() => panels.close("settings")}
               onUpdateSetting={handleSettingsUpdate}
             />
           </div>
