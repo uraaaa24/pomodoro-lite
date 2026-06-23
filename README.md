@@ -10,6 +10,10 @@ Pomodoro Lite is a small Tauri + Vanilla TypeScript timer for alternating betwee
 - Editable durations so the timer can be adapted to your study or work rhythm.
 - Progress, completed-session count, current cycle, and next-session indicators.
 
+## Roadmap
+
+The next recommended milestone is session completion cues, starting with a bundled notification sound and mute toggle. See [the feature roadmap](docs/feature-roadmap.md) for scope and follow-up priorities.
+
 ## Development
 
 Install dependencies, then run the Vite dev server:
