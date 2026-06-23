@@ -1,7 +1,32 @@
-# Tauri + Vanilla TS
+# Pomodoro Lite
 
-This template should help get you started developing with Tauri in vanilla HTML, CSS and Typescript.
+Pomodoro Lite is a small Tauri + Vanilla TypeScript timer for alternating between focused work and intentional breaks.
 
-## Recommended IDE Setup
+## Features
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+- 25-minute focus sessions, 5-minute short breaks, and 15-minute long breaks by default.
+- Automatic long break after every fourth completed focus session.
+- Start, pause, reset, and skip controls.
+- Editable durations so the timer can be adapted to your study or work rhythm.
+- Progress, completed-session count, current cycle, and next-session indicators.
+
+## Development
+
+Install dependencies, then run the Vite dev server:
+
+```bash
+npm install
+npm run dev
+```
+
+Build the web assets with:
+
+```bash
+npm run build
+```
+
+Run the desktop app with Tauri:
+
+```bash
+npm run tauri dev
+```

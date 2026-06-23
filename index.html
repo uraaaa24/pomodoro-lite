@@ -1,43 +1,81 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="/src/styles.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
+    <title>Pomodoro Lite</title>
     <script type="module" src="/src/main.ts" defer></script>
   </head>
 
   <body>
-    <main class="container">
-      <h1>Welcome to Tauri</h1>
+    <main class="app-shell" aria-labelledby="app-title">
+      <section class="hero-card">
+        <div class="hero-copy">
+          <p class="eyebrow">Pomodoro Lite</p>
+          <h1 id="app-title">集中と休憩を、軽やかに切り替える。</h1>
+          <p class="lead">
+            25分の作業、5分の短い休憩、4セットごとの長い休憩をワンクリックで管理できます。
+          </p>
+        </div>
 
-      <div class="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/src/assets/vite.svg" class="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img
-            src="/src/assets/tauri.svg"
-            class="logo tauri"
-            alt="Tauri logo"
-          />
-        </a>
-        <a href="https://www.typescriptlang.org/docs" target="_blank">
-          <img
-            src="/src/assets/typescript.svg"
-            class="logo typescript"
-            alt="typescript logo"
-          />
-        </a>
-      </div>
-      <p>Click on the Tauri logo to learn more about the framework</p>
+        <div class="timer-panel" aria-live="polite">
+          <div class="mode-tabs" role="tablist" aria-label="タイマーモード">
+            <button class="mode-tab active" type="button" data-mode="focus">作業</button>
+            <button class="mode-tab" type="button" data-mode="shortBreak">短い休憩</button>
+            <button class="mode-tab" type="button" data-mode="longBreak">長い休憩</button>
+          </div>
 
-      <form class="row" id="greet-form">
-        <input id="greet-input" placeholder="Enter a name..." />
-        <button type="submit">Greet</button>
-      </form>
-      <p id="greet-msg"></p>
+          <p class="session-label" id="session-label">作業セッション</p>
+          <time class="time-display" id="time-display" datetime="PT25M">25:00</time>
+
+          <div class="progress-track" aria-hidden="true">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+
+          <div class="controls" aria-label="タイマー操作">
+            <button class="primary-button" id="toggle-button" type="button">スタート</button>
+            <button class="secondary-button" id="reset-button" type="button">リセット</button>
+            <button class="secondary-button" id="skip-button" type="button">次へ</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="dashboard" aria-label="ポモドーロの状態">
+        <article class="stat-card">
+          <span class="stat-value" id="completed-count">0</span>
+          <span class="stat-label">完了した作業</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-value" id="cycle-count">1 / 4</span>
+          <span class="stat-label">現在のセット</span>
+        </article>
+        <article class="stat-card wide">
+          <span class="stat-label">次の予定</span>
+          <strong id="next-session">短い休憩</strong>
+        </article>
+      </section>
+
+      <section class="settings-card" aria-labelledby="settings-title">
+        <div>
+          <p class="eyebrow">Settings</p>
+          <h2 id="settings-title">時間を調整</h2>
+        </div>
+        <form class="settings-grid" id="settings-form">
+          <label>
+            作業（分）
+            <input id="focus-minutes" name="focus" type="number" min="1" max="120" value="25" />
+          </label>
+          <label>
+            短い休憩（分）
+            <input id="short-break-minutes" name="shortBreak" type="number" min="1" max="60" value="5" />
+          </label>
+          <label>
+            長い休憩（分）
+            <input id="long-break-minutes" name="longBreak" type="number" min="1" max="90" value="15" />
+          </label>
+        </form>
+      </section>
     </main>
   </body>
 </html>
