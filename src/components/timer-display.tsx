@@ -15,17 +15,17 @@ export const TimerDisplay = ({ state, durations }: TimerDisplayProps) => {
   return (
     <section
       aria-labelledby="session-label"
-      className="timer-display"
+      className="mb-6 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#a8d5ba]"
       id="timer-panel"
       role="tabpanel"
       tabIndex={0}
     >
-      <p className="timer-mode" id="session-label">
+      <p className="mt-0 mb-3 text-sm font-medium text-[#8a8d88]" id="session-label">
         {currentModeLabel}
       </p>
       <time
         aria-label={`${formattedTime} remaining in ${currentModeLabel}`}
-        className="timer-time"
+        className="mb-5 block font-mono text-[clamp(4.25rem,21vw,5.875rem)] leading-none font-light tracking-[-0.08em] text-[#222222]"
         dateTime={`PT${state.remainingSeconds}S`}
       >
         {formattedTime}
@@ -35,10 +35,13 @@ export const TimerDisplay = ({ state, durations }: TimerDisplayProps) => {
         aria-valuemax={100}
         aria-valuemin={0}
         aria-valuenow={elapsedPercent}
-        className="progress-track"
+        className="mx-auto h-1 w-full max-w-[300px] overflow-hidden rounded-full bg-white"
         role="progressbar"
       >
-        <div className="progress-bar" style={{ width: `${progressPercent}%` }} />
+        <div
+          className="h-full rounded-[inherit] bg-[#a8d5ba] transition-[width] duration-300 ease-out motion-reduce:transition-none"
+          style={{ width: `${progressPercent}%` }}
+        />
       </div>
     </section>
   );

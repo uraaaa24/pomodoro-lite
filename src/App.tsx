@@ -1,3 +1,4 @@
+import { Settings as SettingsIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ModeTabs } from "./components/mode-tabs";
 import { TimerControls } from "./components/timer-controls";
@@ -15,6 +16,7 @@ export const App = () => {
   );
   const handledSessionId = useRef<number | null>(null);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const settingsPanelRef = useRef<HTMLDivElement>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState("Ready to start a focus session.");
 
@@ -44,6 +46,30 @@ export const App = () => {
     }
   }, [settings.desktopNotificationsEnabled, settings.soundEnabled, state.lastCompletedSession]);
 
+  useEffect(() => {
+    if (!isSettingsOpen) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      if (settingsButtonRef.current?.contains(target) || settingsPanelRef.current?.contains(target)) {
+        return;
+      }
+
+      setIsSettingsOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown, { capture: true });
+
+    return () => document.removeEventListener("pointerdown", handlePointerDown, { capture: true });
+  }, [isSettingsOpen]);
+
   const handleStartWithSound = () => {
     if (settings.soundEnabled) {
       void prepareSessionCueSound();
@@ -66,11 +92,11 @@ export const App = () => {
   };
 
   return (
-    <main className="app-shell" aria-labelledby="app-title">
-      <section className="timer-tool">
-        <header className="app-header">
-          <p className="app-kicker">Pomodoro Lite</p>
-          <h1 className="app-title" id="app-title">
+    <main className="grid min-h-screen place-items-center px-5" aria-labelledby="app-title">
+      <section className="relative w-full max-w-xs px-2 text-center">
+        <header className="mb-5">
+          <p className="mt-0 mb-2 text-xs font-medium tracking-[0.18em] text-[#8a8d88] uppercase">Pomodoro Lite</p>
+          <h1 className="m-0 text-base font-medium tracking-[-0.01em] text-[#333432]" id="app-title">
             Quiet timer for deep work
           </h1>
         </header>
@@ -87,19 +113,21 @@ export const App = () => {
           aria-controls="settings-panel"
           aria-expanded={isSettingsOpen}
           aria-label="Open preferences"
-          className="settings-button"
+          className="absolute top-0 right-2 inline-grid h-11 w-11 place-items-center rounded-full border border-[#e4e4e0] bg-white/70 p-0 text-[#62645f] hover:border-[#c8e6d2] hover:text-[#2f302e] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#a8d5ba] [&_svg]:block"
           onClick={() => setIsSettingsOpen((current) => !current)}
           ref={settingsButtonRef}
           type="button"
         >
-          ⚙
+          <SettingsIcon aria-hidden="true" size={18} strokeWidth={2} />
         </button>
         {isSettingsOpen ? (
-          <TimerSettings
-            settings={settings}
-            onClose={handleCloseSettings}
-            onUpdateSetting={handleSettingsUpdate}
-          />
+          <div ref={settingsPanelRef}>
+            <TimerSettings
+              settings={settings}
+              onClose={handleCloseSettings}
+              onUpdateSetting={handleSettingsUpdate}
+            />
+          </div>
         ) : null}
         <p className="sr-only" role="status">
           {statusMessage}

@@ -35,7 +35,7 @@ export const ModeTabs = ({ currentMode, onSwitchMode }: ModeTabsProps) => {
   };
 
   return (
-    <div className="mode-tabs" role="tablist" aria-label="Timer modes">
+    <div className="mb-5 flex justify-center rounded-full bg-white p-1" role="tablist" aria-label="Timer modes">
       {POMODORO_MODES.map((mode) => {
         const isActive = mode === currentMode;
 
@@ -43,7 +43,9 @@ export const ModeTabs = ({ currentMode, onSwitchMode }: ModeTabsProps) => {
           <button
             aria-controls="timer-panel"
             aria-selected={isActive}
-            className="mode-tab"
+            className={`min-h-11 min-w-11 flex-1 rounded-full border-0 px-4 py-2 text-xs font-medium focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#a8d5ba] ${
+              isActive ? "bg-[#c8e6d2] text-[#2f302e]" : "bg-transparent text-[#8a8d88]"
+            }`}
             data-active={isActive}
             id={`mode-tab-${mode}`}
             key={mode}
