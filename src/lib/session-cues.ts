@@ -12,19 +12,19 @@ type ChimeNote = {
 const CHIME_GAIN = 0.18;
 const SESSION_TRANSITION_MOTIFS: Record<PomodoroMode, ChimeNote[]> = {
   focus: [
-    { frequency: 587.33, offsetSeconds: 0, durationSeconds: 0.22, level: 0.72 },
-    { frequency: 739.99, offsetSeconds: 0.16, durationSeconds: 0.24, level: 0.78 },
-    { frequency: 987.77, offsetSeconds: 0.38, durationSeconds: 0.5, level: 1 },
+    { frequency: 587.33, offsetSeconds: 0, durationSeconds: 0.26, level: 0.72 },
+    { frequency: 739.99, offsetSeconds: 0.2, durationSeconds: 0.28, level: 0.78 },
+    { frequency: 987.77, offsetSeconds: 0.48, durationSeconds: 0.74, level: 1 },
   ],
   shortBreak: [
-    { frequency: 783.99, offsetSeconds: 0, durationSeconds: 0.24, level: 0.74 },
-    { frequency: 659.25, offsetSeconds: 0.2, durationSeconds: 0.28, level: 0.78 },
-    { frequency: 523.25, offsetSeconds: 0.46, durationSeconds: 0.52, level: 0.94 },
+    { frequency: 783.99, offsetSeconds: 0, durationSeconds: 0.28, level: 0.72 },
+    { frequency: 659.25, offsetSeconds: 0.24, durationSeconds: 0.3, level: 0.76 },
+    { frequency: 523.25, offsetSeconds: 0.56, durationSeconds: 0.78, level: 0.92 },
   ],
   longBreak: [
-    { frequency: 880, offsetSeconds: 0, durationSeconds: 0.26, level: 0.72 },
-    { frequency: 659.25, offsetSeconds: 0.24, durationSeconds: 0.32, level: 0.76 },
-    { frequency: 493.88, offsetSeconds: 0.54, durationSeconds: 0.62, level: 0.92 },
+    { frequency: 880, offsetSeconds: 0, durationSeconds: 0.3, level: 0.7 },
+    { frequency: 659.25, offsetSeconds: 0.28, durationSeconds: 0.34, level: 0.74 },
+    { frequency: 493.88, offsetSeconds: 0.66, durationSeconds: 0.9, level: 0.9 },
   ],
 };
 
