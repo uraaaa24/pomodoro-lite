@@ -1,13 +1,13 @@
 import type { KeyboardEvent } from "react";
-import { MODE_TAB_LABELS, POMODORO_MODES } from "../lib/pomodoro";
-import type { PomodoroMode } from "../types/pomodoro";
+import { MODE_TAB_LABELS, POMODORO_MODES } from "../../lib/pomodoro";
+import type { PomodoroMode } from "../../types/pomodoro";
 
 type ModeTabsProps = {
   currentMode: PomodoroMode;
   onSwitchMode: (mode: PomodoroMode) => void;
 };
 
-export const ModeTabs = ({ currentMode, onSwitchMode }: ModeTabsProps) => {
+const ModeTabs = ({ currentMode, onSwitchMode }: ModeTabsProps) => {
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, mode: PomodoroMode) => {
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
       return;
@@ -62,3 +62,5 @@ export const ModeTabs = ({ currentMode, onSwitchMode }: ModeTabsProps) => {
     </div>
   );
 };
+
+export default ModeTabs;

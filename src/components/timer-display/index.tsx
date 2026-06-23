@@ -1,12 +1,12 @@
-import { MODE_LABELS, formatTime, getProgressRatio } from "../lib/pomodoro";
-import type { TimerDurations, TimerState } from "../types/pomodoro";
+import { MODE_LABELS, formatTime, getProgressRatio } from "../../lib/pomodoro";
+import type { TimerDurations, TimerState } from "../../types/pomodoro";
 
 type TimerDisplayProps = {
   state: TimerState;
   durations: TimerDurations;
 };
 
-export const TimerDisplay = ({ state, durations }: TimerDisplayProps) => {
+const TimerDisplay = ({ state, durations }: TimerDisplayProps) => {
   const progressPercent = getProgressRatio(state, durations) * 100;
   const formattedTime = formatTime(state.remainingSeconds);
   const currentModeLabel = MODE_LABELS[state.currentMode];
@@ -25,7 +25,7 @@ export const TimerDisplay = ({ state, durations }: TimerDisplayProps) => {
       </p>
       <time
         aria-label={`${formattedTime} remaining in ${currentModeLabel}`}
-        className="mb-5 block font-['Geist_Mono'] text-[clamp(4.25rem,21vw,5.875rem)] leading-none font-normal tracking-[-0.08em] text-[#222222]"
+        className="mb-5 block font-['Geist_Mono'] text-[clamp(4.25rem,21vw,5.875rem)] leading-none font-medium tracking-[-0.04em] text-[#222222]"
         dateTime={`PT${state.remainingSeconds}S`}
       >
         {formattedTime}
@@ -46,3 +46,5 @@ export const TimerDisplay = ({ state, durations }: TimerDisplayProps) => {
     </section>
   );
 };
+
+export default TimerDisplay;

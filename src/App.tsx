@@ -1,79 +1,27 @@
 import { Settings as SettingsIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { ModeTabs } from "./components/mode-tabs";
-import { TimerControls } from "./components/timer-controls";
-import { TimerDisplay } from "./components/timer-display";
-import { TimerSettings } from "./components/timer-settings";
+
+import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { usePomodoroSettings } from "./hooks/usePomodoroSettings";
 import { usePomodoroTimer } from "./hooks/usePomodoroTimer";
+import { useSessionCompletion } from "./hooks/useSessionCompletion";
+import { useSettingsPanel } from "./hooks/useSettingsPanel";
 import { MODE_LABELS, formatTime } from "./lib/pomodoro";
-import { playSessionStartSound, prepareSessionCueSound, showSessionCompleteNotification } from "./lib/session-cues";
+import { prepareSessionCueSound } from "./lib/session-cues";
+import ModeTabs from "./components/mode-tabs";
+import Button from "./components/shared/button";
+import TimerControls from "./components/timer-controls";
+import TimerDisplay from "./components/timer-display";
+import TimerSettings from "./components/timer-settings";
 
 export const App = () => {
   const { settings, updateSetting } = usePomodoroSettings();
   const { state, durations, handlePause, handleReset, handleStart, handleSwitchMode } = usePomodoroTimer(
     settings.autoStartNextSession,
   );
-  const handledSessionId = useRef<number | null>(null);
-  const settingsButtonRef = useRef<HTMLButtonElement>(null);
-  const settingsPanelRef = useRef<HTMLDivElement>(null);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("Ready to start a focus session.");
+  const settingsPanel = useSettingsPanel();
+  const statusMessage = useSessionCompletion({ lastCompletedSession: state.lastCompletedSession, settings });
 
-  useEffect(() => {
-    document.title = `${formatTime(state.remainingSeconds)} - ${MODE_LABELS[state.currentMode]} | Pomodoro Lite`;
-  }, [state.currentMode, state.remainingSeconds]);
-
-  useEffect(() => {
-    if (!state.lastCompletedSession || handledSessionId.current === state.lastCompletedSession.id) {
-      return;
-    }
-
-    handledSessionId.current = state.lastCompletedSession.id;
-    setStatusMessage(
-      `${MODE_LABELS[state.lastCompletedSession.completedMode]} complete. Next: ${MODE_LABELS[state.lastCompletedSession.nextMode]}.`,
-    );
-
-    if (settings.soundEnabled) {
-      void playSessionStartSound(state.lastCompletedSession.nextMode, settings.soundVolume);
-    }
-
-    if (settings.desktopNotificationsEnabled) {
-      void showSessionCompleteNotification(
-        state.lastCompletedSession.completedMode,
-        state.lastCompletedSession.nextMode,
-      );
-    }
-  }, [
-    settings.desktopNotificationsEnabled,
-    settings.soundEnabled,
-    settings.soundVolume,
-    state.lastCompletedSession,
-  ]);
-
-  useEffect(() => {
-    if (!isSettingsOpen) {
-      return undefined;
-    }
-
-    const handlePointerDown = (event: PointerEvent) => {
-      const target = event.target;
-
-      if (!(target instanceof Node)) {
-        return;
-      }
-
-      if (settingsButtonRef.current?.contains(target) || settingsPanelRef.current?.contains(target)) {
-        return;
-      }
-
-      setIsSettingsOpen(false);
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown, { capture: true });
-
-    return () => document.removeEventListener("pointerdown", handlePointerDown, { capture: true });
-  }, [isSettingsOpen]);
+  useDocumentTitle(`${formatTime(state.remainingSeconds)} - ${MODE_LABELS[state.currentMode]} | Pomodoro Lite`);
 
   const handleStartWithSound = () => {
     if (settings.soundEnabled) {
@@ -89,11 +37,6 @@ export const App = () => {
     }
 
     updateSetting(key, value);
-  };
-
-  const handleCloseSettings = () => {
-    setIsSettingsOpen(false);
-    window.requestAnimationFrame(() => settingsButtonRef.current?.focus());
   };
 
   return (
@@ -114,22 +57,22 @@ export const App = () => {
           onReset={handleReset}
           onStart={handleStartWithSound}
         />
-        <button
+        <Button
           aria-controls="settings-panel"
-          aria-expanded={isSettingsOpen}
+          aria-expanded={settingsPanel.isOpen}
           aria-label="Open preferences"
-          className="absolute top-0 right-2 inline-grid h-11 w-11 place-items-center rounded-full border border-[#e4e4e0] bg-white/70 p-0 text-[#62645f] hover:border-[#c8e6d2] hover:text-[#2f302e] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#a8d5ba] [&_svg]:block"
-          onClick={() => setIsSettingsOpen((current) => !current)}
-          ref={settingsButtonRef}
-          type="button"
+          className="absolute top-0 right-2 bg-white/70"
+          onClick={settingsPanel.toggle}
+          ref={settingsPanel.buttonRef}
+          size="icon"
         >
           <SettingsIcon aria-hidden="true" size={18} strokeWidth={2} />
-        </button>
-        {isSettingsOpen ? (
-          <div ref={settingsPanelRef}>
+        </Button>
+        {settingsPanel.isOpen ? (
+          <div ref={settingsPanel.panelRef}>
             <TimerSettings
               settings={settings}
-              onClose={handleCloseSettings}
+              onClose={settingsPanel.close}
               onUpdateSetting={handleSettingsUpdate}
             />
           </div>
