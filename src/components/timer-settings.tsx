@@ -1,4 +1,4 @@
-import { requestDesktopNotificationPermission } from "../lib/session-cues";
+import { playSessionCompleteSound, prepareSessionCompleteSound, requestDesktopNotificationPermission } from "../lib/session-cues";
 import type { PomodoroSettings } from "../lib/settings";
 
 type TimerSettingsProps = {
@@ -17,16 +17,26 @@ export const TimerSettings = ({ settings, onUpdateSetting }: TimerSettingsProps)
     onUpdateSetting("desktopNotificationsEnabled", permission === "granted");
   };
 
+  const handleTestSound = async () => {
+    await prepareSessionCompleteSound();
+    await playSessionCompleteSound("focus");
+  };
+
   return (
     <section className="timer-settings" aria-label="Timer settings">
-      <label className="setting-toggle">
-        <input
-          checked={settings.soundEnabled}
-          onChange={(event) => onUpdateSetting("soundEnabled", event.currentTarget.checked)}
-          type="checkbox"
-        />
-        <span>Sound</span>
-      </label>
+      <div className="setting-row">
+        <label className="setting-toggle">
+          <input
+            checked={settings.soundEnabled}
+            onChange={(event) => onUpdateSetting("soundEnabled", event.currentTarget.checked)}
+            type="checkbox"
+          />
+          <span>Sound</span>
+        </label>
+        <button className="setting-test-button" onClick={() => void handleTestSound()} type="button">
+          Test
+        </button>
+      </div>
       <label className="setting-toggle">
         <input
           checked={settings.desktopNotificationsEnabled}
