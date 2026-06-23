@@ -5,7 +5,7 @@ import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { usePomodoroSettings } from "./hooks/usePomodoroSettings";
 import { usePomodoroTimer } from "./hooks/usePomodoroTimer";
 import { useSessionCompletion } from "./hooks/useSessionCompletion";
-import { useSettingsPanel } from "./hooks/useSettingsPanel";
+import { usePanelGroup } from "./hooks/usePanelGroup";
 import { MODE_LABELS, formatTime } from "./lib/pomodoro";
 import { prepareSessionCueSound } from "./lib/session-cues";
 import ModeTabs from "./components/mode-tabs";
@@ -20,8 +20,7 @@ export const App = () => {
   const { state, durations, handlePause, handleReset, handleStart, handleSwitchMode } = usePomodoroTimer(
     settings.autoStartNextSession,
   );
-  const focusSummaryPanel = useSettingsPanel();
-  const settingsPanel = useSettingsPanel();
+  const panels = usePanelGroup();
   const dailyFocusSummary = useDailyFocusSummary(state.lastCompletedSession);
   const statusMessage = useSessionCompletion({ lastCompletedSession: state.lastCompletedSession, settings });
 
@@ -36,23 +35,15 @@ export const App = () => {
   };
 
   const handleFocusSummaryToggle = () => {
-    if (settingsPanel.isOpen) {
-      settingsPanel.close();
-    }
-
-    focusSummaryPanel.toggle();
+    panels.toggle("focusSummary");
   };
 
   const handleFocusSummaryClose = () => {
-    focusSummaryPanel.close();
+    panels.close("focusSummary");
   };
 
   const handleSettingsToggle = () => {
-    if (focusSummaryPanel.isOpen) {
-      focusSummaryPanel.close();
-    }
-
-    settingsPanel.toggle();
+    panels.toggle("settings");
   };
 
   const handleSettingsUpdate = <Key extends keyof typeof settings>(key: Key, value: (typeof settings)[Key]) => {
@@ -83,41 +74,41 @@ export const App = () => {
         />
         <Button
           aria-controls="today-focus-panel"
-          aria-expanded={focusSummaryPanel.isOpen}
+          aria-expanded={panels.isOpen("focusSummary")}
           aria-haspopup="dialog"
           aria-label="Open focus summary"
           className="absolute top-0 left-2 bg-white/70"
           onClick={handleFocusSummaryToggle}
-          ref={focusSummaryPanel.buttonRef}
+          ref={panels.getButtonRef("focusSummary")}
           size="icon"
         >
           <BarChart3 aria-hidden="true" size={18} strokeWidth={2} />
         </Button>
         <Button
           aria-controls="settings-panel"
-          aria-expanded={settingsPanel.isOpen}
+          aria-expanded={panels.isOpen("settings")}
           aria-haspopup="dialog"
           aria-label="Open preferences"
           className="absolute top-0 right-2 bg-white/70"
           onClick={handleSettingsToggle}
-          ref={settingsPanel.buttonRef}
+          ref={panels.getButtonRef("settings")}
           size="icon"
         >
           <SettingsIcon aria-hidden="true" size={18} strokeWidth={2} />
         </Button>
-        {focusSummaryPanel.isOpen ? (
-          <div ref={focusSummaryPanel.panelRef}>
+        {panels.isOpen("focusSummary") ? (
+          <div ref={panels.getPanelRef("focusSummary")}>
             <TodayFocusSummary
               summary={dailyFocusSummary}
               onClose={handleFocusSummaryClose}
             />
           </div>
         ) : null}
-        {settingsPanel.isOpen ? (
-          <div ref={settingsPanel.panelRef}>
+        {panels.isOpen("settings") ? (
+          <div ref={panels.getPanelRef("settings")}>
             <TimerSettings
               settings={settings}
-              onClose={settingsPanel.close}
+              onClose={() => panels.close("settings")}
               onUpdateSetting={handleSettingsUpdate}
             />
           </div>
