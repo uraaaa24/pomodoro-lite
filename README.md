@@ -12,7 +12,7 @@ Pomodoro Lite is a small Tauri + Vanilla TypeScript timer for alternating betwee
 
 ## Roadmap
 
-The next recommended milestone is session completion cues, starting with a bundled notification sound and mute toggle. See [the feature roadmap](docs/feature-roadmap.md) for scope and follow-up priorities.
+The implemented usability baseline adds session completion cues: sound, optional desktop notifications, auto-start preference, and locally persisted timer preferences. See [the feature roadmap](docs/feature-roadmap.md) for follow-up priorities.
 
 ## Development
 

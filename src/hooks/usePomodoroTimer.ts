@@ -43,13 +43,18 @@ const timerReducer = (state: TimerState, action: TimerAction): TimerState => {
         currentMode: nextMode,
         remainingSeconds: getInitialDuration(nextMode),
         completedFocusSessions,
-        isRunning: false,
+        isRunning: action.autoStartNextSession,
+        lastCompletedSession: {
+          id: Date.now(),
+          completedMode: state.currentMode,
+          nextMode,
+        },
       };
     }
   }
 };
 
-export const usePomodoroTimer = () => {
+export const usePomodoroTimer = (autoStartNextSession: boolean) => {
   const [state, dispatch] = useReducer(timerReducer, createInitialTimerState());
   const durations: TimerDurations = DEFAULT_DURATIONS;
 
@@ -58,10 +63,13 @@ export const usePomodoroTimer = () => {
       return undefined;
     }
 
-    const intervalId = window.setInterval(() => dispatch({ type: TIMER_ACTION.TICK }), TICK_INTERVAL_MS);
+    const intervalId = window.setInterval(
+      () => dispatch({ type: TIMER_ACTION.TICK, autoStartNextSession }),
+      TICK_INTERVAL_MS,
+    );
 
     return () => window.clearInterval(intervalId);
-  }, [state.isRunning]);
+  }, [autoStartNextSession, state.isRunning]);
 
   const handleStart = () => {
     dispatch({ type: TIMER_ACTION.START });

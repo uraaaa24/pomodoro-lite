@@ -1,16 +1,42 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { ModeTabs } from "./components/mode-tabs";
 import { TimerControls } from "./components/timer-controls";
 import { TimerDisplay } from "./components/timer-display";
+import { TimerSettings } from "./components/timer-settings";
+import { usePomodoroSettings } from "./hooks/usePomodoroSettings";
 import { usePomodoroTimer } from "./hooks/usePomodoroTimer";
 import { MODE_LABELS, formatTime } from "./lib/pomodoro";
+import { playSessionCompleteSound, showSessionCompleteNotification } from "./lib/session-cues";
 
 export const App = () => {
-  const { state, durations, handlePause, handleReset, handleStart, handleSwitchMode } = usePomodoroTimer();
+  const { settings, updateSetting } = usePomodoroSettings();
+  const { state, durations, handlePause, handleReset, handleStart, handleSwitchMode } = usePomodoroTimer(
+    settings.autoStartNextSession,
+  );
+  const handledSessionId = useRef<number | null>(null);
 
   useEffect(() => {
     document.title = `${formatTime(state.remainingSeconds)} - ${MODE_LABELS[state.currentMode]} | Pomodoro Lite`;
   }, [state.currentMode, state.remainingSeconds]);
+
+  useEffect(() => {
+    if (!state.lastCompletedSession || handledSessionId.current === state.lastCompletedSession.id) {
+      return;
+    }
+
+    handledSessionId.current = state.lastCompletedSession.id;
+
+    if (settings.soundEnabled) {
+      playSessionCompleteSound(state.lastCompletedSession.completedMode);
+    }
+
+    if (settings.desktopNotificationsEnabled) {
+      showSessionCompleteNotification(
+        state.lastCompletedSession.completedMode,
+        state.lastCompletedSession.nextMode,
+      );
+    }
+  }, [settings.desktopNotificationsEnabled, settings.soundEnabled, state.lastCompletedSession]);
 
   return (
     <main className="app-shell" aria-labelledby="app-title">
@@ -30,6 +56,7 @@ export const App = () => {
           onReset={handleReset}
           onStart={handleStart}
         />
+        <TimerSettings settings={settings} onUpdateSetting={updateSetting} />
       </section>
     </main>
   );

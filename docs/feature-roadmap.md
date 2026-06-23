@@ -2,16 +2,17 @@
 
 This roadmap focuses on features that make Pomodoro Lite feel reliable as a desktop timer before adding heavier productivity workflows.
 
-## Recommended first milestone: session completion cues
+## Implemented usability baseline: session completion cues
 
-Notification sound should be the first feature to add. A Pomodoro timer is only useful when it can pull the user's attention back at session boundaries, especially when the app is minimized or behind another window.
+Notification sound is the first implemented feature in this usability baseline. A Pomodoro timer is only useful when it can pull the user's attention back at session boundaries, especially when the app is minimized or behind another window.
 
 ### Scope
 
 - Play a short, pleasant sound when a focus, short break, or long break session finishes.
 - Provide a mute toggle so users can keep the visual timer without audio.
-- Use separate sound labels for work-finished and break-finished moments, even if the first implementation reuses the same audio asset.
-- Keep the sound local and bundled with the app so it works offline.
+- Show an optional desktop notification when the app is minimized or behind another window.
+- Provide an auto-start toggle for users who want the next session to begin immediately.
+- Save cue preferences locally so the app remembers them between launches.
 
 ### Acceptance criteria
 
@@ -22,11 +23,10 @@ Notification sound should be the first feature to add. A Pomodoro timer is only 
 
 ## Near-term follow-up features
 
-1. **Desktop notification**: Show a native notification alongside the sound so the user can see which session ended.
-2. **Auto-start preference**: Let users choose whether the next focus or break starts automatically.
-3. **Persistent settings**: Save custom durations, mute state, and auto-start behavior between launches.
-4. **Session history**: Track completed focus sessions for the current day to make progress visible.
-5. **Task label**: Allow a lightweight text label for the current focus session without turning the app into a full task manager.
+1. **Session history**: Track completed focus sessions for the current day to make progress visible.
+2. **Task label**: Allow a lightweight text label for the current focus session without turning the app into a full task manager.
+3. **Editable sound choices**: Offer a small set of bundled tones once the default cue has been validated.
+4. **Custom duration persistence**: Save edited focus, short-break, and long-break durations between launches.
 
 ## Features to defer
 

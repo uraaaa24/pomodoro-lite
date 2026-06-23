@@ -34,6 +34,7 @@ export const createInitialTimerState = (initialMode: PomodoroMode = "focus"): Ti
   remainingSeconds: getInitialDuration(initialMode),
   completedFocusSessions: 0,
   isRunning: false,
+  lastCompletedSession: null,
 });
 
 export const formatTime = (totalSeconds: number) => {
