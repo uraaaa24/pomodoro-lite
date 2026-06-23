@@ -25,7 +25,7 @@ export const TimerDisplay = ({ state, durations }: TimerDisplayProps) => {
       </p>
       <time
         aria-label={`${formattedTime} remaining in ${currentModeLabel}`}
-        className="mb-5 block font-mono text-[clamp(4.25rem,21vw,5.875rem)] leading-none font-light tracking-[-0.08em] text-[#222222]"
+        className="mb-5 block font-['Geist_Mono'] text-[clamp(4.25rem,21vw,5.875rem)] leading-none font-normal tracking-[-0.08em] text-[#222222]"
         dateTime={`PT${state.remainingSeconds}S`}
       >
         {formattedTime}

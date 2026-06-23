@@ -9,8 +9,10 @@ type ChimeNote = {
   level?: number;
 };
 
-const CHIME_GAIN = 0.18;
+const CHIME_GAIN = 1;
 const NOTE_INTERVAL_SECONDS = 0.25;
+
+const clampVolume = (volume: number) => Math.min(Math.max(volume, 0), 1);
 
 const withEvenOffsets = (notes: Omit<ChimeNote, "offsetSeconds">[]): ChimeNote[] =>
   notes.map((note, index) => ({
@@ -67,7 +69,7 @@ export const prepareSessionCueSound = async () => {
   await audioContext.resume();
 };
 
-export const playSessionStartSound = async (startedMode: PomodoroMode) => {
+export const playSessionStartSound = async (startedMode: PomodoroMode, volume = 1) => {
   const audioContext = getAudioContext();
 
   if (!audioContext) {
@@ -81,7 +83,7 @@ export const playSessionStartSound = async (startedMode: PomodoroMode) => {
   const now = audioContext.currentTime;
   const masterGain = audioContext.createGain();
 
-  masterGain.gain.setValueAtTime(CHIME_GAIN, now);
+  masterGain.gain.setValueAtTime(CHIME_GAIN * clampVolume(volume), now);
   masterGain.connect(audioContext.destination);
 
   SESSION_TRANSITION_MOTIFS[startedMode].forEach((note) => {

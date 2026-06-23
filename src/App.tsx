@@ -35,7 +35,7 @@ export const App = () => {
     );
 
     if (settings.soundEnabled) {
-      void playSessionStartSound(state.lastCompletedSession.nextMode);
+      void playSessionStartSound(state.lastCompletedSession.nextMode, settings.soundVolume);
     }
 
     if (settings.desktopNotificationsEnabled) {
@@ -44,7 +44,12 @@ export const App = () => {
         state.lastCompletedSession.nextMode,
       );
     }
-  }, [settings.desktopNotificationsEnabled, settings.soundEnabled, state.lastCompletedSession]);
+  }, [
+    settings.desktopNotificationsEnabled,
+    settings.soundEnabled,
+    settings.soundVolume,
+    state.lastCompletedSession,
+  ]);
 
   useEffect(() => {
     if (!isSettingsOpen) {

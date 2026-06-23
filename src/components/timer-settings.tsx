@@ -43,7 +43,7 @@ export const TimerSettings = ({ settings, onClose, onUpdateSetting }: TimerSetti
 
   const handleTestSound = async (startedMode: PomodoroMode) => {
     await prepareSessionCueSound();
-    await playSessionStartSound(startedMode);
+    await playSessionStartSound(startedMode, settings.soundVolume);
   };
 
   const handleTestNotification = async () => {
@@ -108,6 +108,24 @@ export const TimerSettings = ({ settings, onClose, onUpdateSetting }: TimerSetti
           </button>
         </div>
       </div>
+      <label className="grid min-h-11 grid-cols-[1.25rem_minmax(6rem,1fr)_auto] items-center gap-2.5">
+        <span className="sr-only">Sound volume</span>
+        <span aria-hidden="true" />
+        <span className={settingLabelClassName}>Volume</span>
+        <span className="text-xs font-medium tabular-nums text-[#62645f]">
+          {Math.round(settings.soundVolume * 100)}%
+        </span>
+        <input
+          aria-label="Sound volume"
+          className="col-start-2 col-end-4 h-2 w-full accent-[#a8d5ba] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#a8d5ba]"
+          disabled={!settings.soundEnabled}
+          max={100}
+          min={0}
+          onChange={(event) => onUpdateSetting("soundVolume", Number(event.currentTarget.value) / 100)}
+          type="range"
+          value={Math.round(settings.soundVolume * 100)}
+        />
+      </label>
       <div className={settingRowClassName}>
         <label className={iconToggleClassName}>
           <input
