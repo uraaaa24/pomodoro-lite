@@ -2,11 +2,13 @@ import { invoke, isTauri } from "@tauri-apps/api/core";
 import { MODE_LABELS } from "./pomodoro";
 import type { PomodoroMode } from "../types/pomodoro";
 
-const SOUND_DURATION_SECONDS = 0.32;
-const FINISHED_FREQUENCIES: Record<PomodoroMode, number> = {
-  focus: 660,
-  shortBreak: 520,
-  longBreak: 440,
+const NOTE_DURATION_SECONDS = 0.42;
+const NOTE_GAP_SECONDS = 0.12;
+const CHIME_GAIN = 0.2;
+const COMPLETION_CHIMES: Record<PomodoroMode, number[]> = {
+  focus: [659.25, 783.99, 987.77],
+  shortBreak: [523.25, 659.25, 783.99],
+  longBreak: [440, 554.37, 659.25, 880],
 };
 
 let sharedAudioContext: AudioContext | null = null;
@@ -43,21 +45,44 @@ export const playSessionCompleteSound = async (completedMode: PomodoroMode) => {
     await audioContext.resume();
   }
 
-  const oscillator = audioContext.createOscillator();
-  const gain = audioContext.createGain();
   const now = audioContext.currentTime;
+  const masterGain = audioContext.createGain();
 
-  oscillator.type = "triangle";
-  oscillator.frequency.setValueAtTime(FINISHED_FREQUENCIES[completedMode], now);
-  oscillator.frequency.setValueAtTime(FINISHED_FREQUENCIES[completedMode] * 1.25, now + SOUND_DURATION_SECONDS / 2);
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.22, now + 0.03);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + SOUND_DURATION_SECONDS);
+  masterGain.gain.setValueAtTime(CHIME_GAIN, now);
+  masterGain.connect(audioContext.destination);
+
+  COMPLETION_CHIMES[completedMode].forEach((frequency, index) => {
+    const startTime = now + index * (NOTE_DURATION_SECONDS + NOTE_GAP_SECONDS);
+    playBellNote(audioContext, masterGain, frequency, startTime);
+  });
+
+  const chimeDurationMs =
+    (COMPLETION_CHIMES[completedMode].length * (NOTE_DURATION_SECONDS + NOTE_GAP_SECONDS) + NOTE_DURATION_SECONDS) * 1000;
+  window.setTimeout(() => masterGain.disconnect(), chimeDurationMs);
+};
+
+const playBellNote = (audioContext: AudioContext, destination: AudioNode, frequency: number, startTime: number) => {
+  const endTime = startTime + NOTE_DURATION_SECONDS;
+  const oscillator = audioContext.createOscillator();
+  const harmonic = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+
+  oscillator.type = "sine";
+  harmonic.type = "triangle";
+  oscillator.frequency.setValueAtTime(frequency, startTime);
+  harmonic.frequency.setValueAtTime(frequency * 2, startTime);
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.exponentialRampToValueAtTime(1, startTime + 0.025);
+  gain.gain.exponentialRampToValueAtTime(0.0001, endTime);
 
   oscillator.connect(gain);
-  gain.connect(audioContext.destination);
-  oscillator.start(now);
-  oscillator.stop(now + SOUND_DURATION_SECONDS);
+  harmonic.connect(gain);
+  gain.connect(destination);
+
+  oscillator.start(startTime);
+  harmonic.start(startTime);
+  oscillator.stop(endTime);
+  harmonic.stop(endTime);
 };
 
 export const requestDesktopNotificationPermission = async () => {
