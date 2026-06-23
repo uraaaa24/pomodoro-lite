@@ -46,7 +46,7 @@ const SESSION_TRANSITION_MOTIFS: Record<PomodoroMode, ChimeNote[]> = {
   ]),
 };
 
-let sharedAudioContext: AudioContext | null = null;
+const sharedAudioContext: { current: AudioContext | null } = { current: null };
 
 const getAudioContext = () => {
   const AudioContextConstructor = window.AudioContext ?? window.webkitAudioContext;
@@ -55,8 +55,8 @@ const getAudioContext = () => {
     return null;
   }
 
-  sharedAudioContext ??= new AudioContextConstructor();
-  return sharedAudioContext;
+  sharedAudioContext.current ??= new AudioContextConstructor();
+  return sharedAudioContext.current;
 };
 
 export const prepareSessionCueSound = async () => {
