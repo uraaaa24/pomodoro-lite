@@ -1,6 +1,7 @@
 import { BarChart3, Settings as SettingsIcon } from "lucide-react";
 import { useState } from "react";
 
+import { useDailyFocusSummary } from "./hooks/useDailyFocusSummary";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { usePomodoroSettings } from "./hooks/usePomodoroSettings";
 import { usePomodoroTimer } from "./hooks/usePomodoroTimer";
@@ -22,6 +23,7 @@ export const App = () => {
   );
   const settingsPanel = useSettingsPanel();
   const [isFocusSummaryOpen, setIsFocusSummaryOpen] = useState(false);
+  const dailyFocusSummary = useDailyFocusSummary(state.lastCompletedSession);
   const statusMessage = useSessionCompletion({ lastCompletedSession: state.lastCompletedSession, settings });
 
   useDocumentTitle(`${formatTime(state.remainingSeconds)} - ${MODE_LABELS[state.currentMode]} | Pomodoro Lite`);
@@ -100,7 +102,7 @@ export const App = () => {
         </Button>
         {isFocusSummaryOpen ? (
           <TodayFocusSummary
-            completedFocusSessions={state.completedFocusSessions}
+            summary={dailyFocusSummary}
             onClose={handleFocusSummaryClose}
           />
         ) : null}
