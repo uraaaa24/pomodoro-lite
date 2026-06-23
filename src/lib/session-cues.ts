@@ -5,37 +5,26 @@ import type { PomodoroMode } from "../types/pomodoro";
 type ChimeNote = {
   frequency: number;
   offsetSeconds: number;
-  durationSeconds?: number;
+  durationSeconds: number;
+  level?: number;
 };
 
-const DEFAULT_NOTE_DURATION_SECONDS = 0.34;
-const CHIME_GAIN = 0.16;
-const SESSION_START_CHIMES: Record<PomodoroMode, ChimeNote[]> = {
+const CHIME_GAIN = 0.18;
+const SESSION_TRANSITION_MOTIFS: Record<PomodoroMode, ChimeNote[]> = {
   focus: [
-    { frequency: 523.25, offsetSeconds: 0 },
-    { frequency: 659.25, offsetSeconds: 0.14 },
-    { frequency: 783.99, offsetSeconds: 0.28 },
-    { frequency: 1046.5, offsetSeconds: 0.48, durationSeconds: 0.36 },
-    { frequency: 880, offsetSeconds: 0.78 },
-    { frequency: 1046.5, offsetSeconds: 0.98 },
-    { frequency: 1174.66, offsetSeconds: 1.24, durationSeconds: 0.58 },
+    { frequency: 587.33, offsetSeconds: 0, durationSeconds: 0.22, level: 0.72 },
+    { frequency: 739.99, offsetSeconds: 0.16, durationSeconds: 0.24, level: 0.78 },
+    { frequency: 987.77, offsetSeconds: 0.38, durationSeconds: 0.5, level: 1 },
   ],
   shortBreak: [
-    { frequency: 783.99, offsetSeconds: 0 },
-    { frequency: 659.25, offsetSeconds: 0.18 },
-    { frequency: 587.33, offsetSeconds: 0.36 },
-    { frequency: 659.25, offsetSeconds: 0.58, durationSeconds: 0.34 },
-    { frequency: 523.25, offsetSeconds: 0.9 },
-    { frequency: 440, offsetSeconds: 1.12, durationSeconds: 0.58 },
+    { frequency: 783.99, offsetSeconds: 0, durationSeconds: 0.24, level: 0.74 },
+    { frequency: 659.25, offsetSeconds: 0.2, durationSeconds: 0.28, level: 0.78 },
+    { frequency: 523.25, offsetSeconds: 0.46, durationSeconds: 0.52, level: 0.94 },
   ],
   longBreak: [
-    { frequency: 880, offsetSeconds: 0 },
-    { frequency: 739.99, offsetSeconds: 0.18 },
-    { frequency: 659.25, offsetSeconds: 0.36 },
-    { frequency: 587.33, offsetSeconds: 0.58 },
-    { frequency: 493.88, offsetSeconds: 0.82, durationSeconds: 0.36 },
-    { frequency: 440, offsetSeconds: 1.14 },
-    { frequency: 392, offsetSeconds: 1.42, durationSeconds: 0.64 },
+    { frequency: 880, offsetSeconds: 0, durationSeconds: 0.26, level: 0.72 },
+    { frequency: 659.25, offsetSeconds: 0.24, durationSeconds: 0.32, level: 0.76 },
+    { frequency: 493.88, offsetSeconds: 0.54, durationSeconds: 0.62, level: 0.92 },
   ],
 };
 
@@ -79,58 +68,60 @@ export const playSessionStartSound = async (startedMode: PomodoroMode) => {
   masterGain.gain.setValueAtTime(CHIME_GAIN, now);
   masterGain.connect(audioContext.destination);
 
-  SESSION_START_CHIMES[startedMode].forEach((note) => {
-    playCozyPluck(audioContext, masterGain, note, now);
+  SESSION_TRANSITION_MOTIFS[startedMode].forEach((note) => {
+    playWoodenBell(audioContext, masterGain, note, now);
   });
 
   const chimeDurationMs = Math.max(
-    ...SESSION_START_CHIMES[startedMode].map(
-      (note) => (note.offsetSeconds + (note.durationSeconds ?? DEFAULT_NOTE_DURATION_SECONDS)) * 1000,
+    ...SESSION_TRANSITION_MOTIFS[startedMode].map(
+      (note) => (note.offsetSeconds + note.durationSeconds) * 1000,
     ),
   );
   window.setTimeout(() => masterGain.disconnect(), chimeDurationMs + 100);
 };
 
-const playCozyPluck = (
+const playWoodenBell = (
   audioContext: AudioContext,
   destination: AudioNode,
-  { frequency, offsetSeconds, durationSeconds = DEFAULT_NOTE_DURATION_SECONDS }: ChimeNote,
+  { frequency, offsetSeconds, durationSeconds, level = 1 }: ChimeNote,
   baseTime: number,
 ) => {
   const startTime = baseTime + offsetSeconds;
   const endTime = startTime + durationSeconds;
   const body = audioContext.createOscillator();
-  const woodenClick = audioContext.createOscillator();
+  const shimmer = audioContext.createOscillator();
   const filter = audioContext.createBiquadFilter();
   const bodyGain = audioContext.createGain();
-  const clickGain = audioContext.createGain();
+  const shimmerGain = audioContext.createGain();
 
   body.type = "sine";
-  woodenClick.type = "triangle";
+  shimmer.type = "triangle";
   body.frequency.setValueAtTime(frequency, startTime);
-  woodenClick.frequency.setValueAtTime(frequency * 3, startTime);
+  shimmer.frequency.setValueAtTime(frequency * 2.01, startTime);
   filter.type = "lowpass";
-  filter.frequency.setValueAtTime(2400, startTime);
-  filter.Q.setValueAtTime(0.8, startTime);
+  filter.frequency.setValueAtTime(2200, startTime);
+  filter.frequency.exponentialRampToValueAtTime(1200, endTime);
+  filter.Q.setValueAtTime(0.65, startTime);
 
   bodyGain.gain.setValueAtTime(0.0001, startTime);
-  bodyGain.gain.exponentialRampToValueAtTime(1, startTime + 0.018);
+  bodyGain.gain.exponentialRampToValueAtTime(level, startTime + 0.018);
   bodyGain.gain.exponentialRampToValueAtTime(0.0001, endTime);
-  clickGain.gain.setValueAtTime(0.0001, startTime);
-  clickGain.gain.exponentialRampToValueAtTime(0.18, startTime + 0.01);
-  clickGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.09);
+  shimmerGain.gain.setValueAtTime(0.0001, startTime);
+  shimmerGain.gain.exponentialRampToValueAtTime(level * 0.2, startTime + 0.012);
+  shimmerGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.13);
 
   body.connect(bodyGain);
-  woodenClick.connect(clickGain);
+  shimmer.connect(shimmerGain);
   bodyGain.connect(filter);
-  clickGain.connect(filter);
+  shimmerGain.connect(filter);
   filter.connect(destination);
 
   body.start(startTime);
-  woodenClick.start(startTime);
+  shimmer.start(startTime);
   body.stop(endTime);
-  woodenClick.stop(startTime + 0.1);
+  shimmer.stop(startTime + 0.14);
 };
+
 
 export const requestDesktopNotificationPermission = async () => {
   if (isTauri()) {
