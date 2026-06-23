@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import {
   playSessionCompleteSound,
   prepareSessionCompleteSound,
@@ -13,6 +14,12 @@ type TimerSettingsProps = {
 };
 
 export const TimerSettings = ({ settings, onClose, onUpdateSetting }: TimerSettingsProps) => {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+  }, []);
+
   const handleNotificationChange = async (enabled: boolean) => {
     if (!enabled) {
       onUpdateSetting("desktopNotificationsEnabled", false);
@@ -41,10 +48,28 @@ export const TimerSettings = ({ settings, onClose, onUpdateSetting }: TimerSetti
   };
 
   return (
-    <section className="timer-settings" aria-label="Timer settings">
+    <section
+      aria-labelledby="settings-title"
+      className="timer-settings"
+      id="settings-panel"
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          onClose();
+        }
+      }}
+      role="dialog"
+    >
       <div className="settings-panel-header">
-        <h2 className="settings-title">Preferences</h2>
-        <button aria-label="Close settings" className="icon-button" onClick={onClose} type="button">
+        <h2 className="settings-title" id="settings-title">
+          Preferences
+        </h2>
+        <button
+          aria-label="Close settings"
+          className="icon-button"
+          onClick={onClose}
+          ref={closeButtonRef}
+          type="button"
+        >
           ×
         </button>
       </div>

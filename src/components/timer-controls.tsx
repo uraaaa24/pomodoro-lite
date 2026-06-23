@@ -9,7 +9,7 @@ export const TimerControls = ({ isRunning, onPause, onReset, onStart }: TimerCon
   const handlePrimaryAction = isRunning ? onPause : onStart;
 
   return (
-    <div className="timer-controls" aria-label="Timer controls">
+    <div className="timer-controls" role="group" aria-label="Timer controls">
       <button className="button button-primary" onClick={handlePrimaryAction} type="button">
         {isRunning ? "Pause" : "Start"}
       </button>

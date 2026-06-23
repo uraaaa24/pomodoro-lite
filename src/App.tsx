@@ -14,7 +14,9 @@ export const App = () => {
     settings.autoStartNextSession,
   );
   const handledSessionId = useRef<number | null>(null);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("Ready to start a focus session.");
 
   useEffect(() => {
     document.title = `${formatTime(state.remainingSeconds)} - ${MODE_LABELS[state.currentMode]} | Pomodoro Lite`;
@@ -26,6 +28,9 @@ export const App = () => {
     }
 
     handledSessionId.current = state.lastCompletedSession.id;
+    setStatusMessage(
+      `${MODE_LABELS[state.lastCompletedSession.completedMode]} complete. Next: ${MODE_LABELS[state.lastCompletedSession.nextMode]}.`,
+    );
 
     if (settings.soundEnabled) {
       void playSessionCompleteSound(state.lastCompletedSession.completedMode);
@@ -55,9 +60,14 @@ export const App = () => {
     updateSetting(key, value);
   };
 
+  const handleCloseSettings = () => {
+    setIsSettingsOpen(false);
+    window.requestAnimationFrame(() => settingsButtonRef.current?.focus());
+  };
+
   return (
     <main className="app-shell" aria-labelledby="app-title">
-      <section className="timer-tool" aria-live="polite">
+      <section className="timer-tool">
         <header className="app-header">
           <p className="app-kicker">Pomodoro Lite</p>
           <h1 className="app-title" id="app-title">
@@ -74,10 +84,12 @@ export const App = () => {
           onStart={handleStartWithSound}
         />
         <button
+          aria-controls="settings-panel"
           aria-expanded={isSettingsOpen}
-          aria-label="Open settings"
+          aria-label="Open preferences"
           className="settings-button"
           onClick={() => setIsSettingsOpen((current) => !current)}
+          ref={settingsButtonRef}
           type="button"
         >
           ⚙
@@ -85,10 +97,13 @@ export const App = () => {
         {isSettingsOpen ? (
           <TimerSettings
             settings={settings}
-            onClose={() => setIsSettingsOpen(false)}
+            onClose={handleCloseSettings}
             onUpdateSetting={handleSettingsUpdate}
           />
         ) : null}
+        <p className="sr-only" role="status">
+          {statusMessage}
+        </p>
       </section>
     </main>
   );
