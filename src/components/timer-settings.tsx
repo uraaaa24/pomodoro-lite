@@ -101,9 +101,11 @@ export const TimerSettings = ({ settings, onClose, onUpdateSetting }: TimerSetti
           />
           <span>Notification</span>
         </label>
-        <button className="setting-test-button" onClick={() => void handleTestNotification()} type="button">
-          Test
-        </button>
+        <div className="setting-button-group">
+          <button className="setting-test-button" onClick={() => void handleTestNotification()} type="button">
+            Test
+          </button>
+        </div>
       </div>
       <label className="setting-toggle">
         <input
