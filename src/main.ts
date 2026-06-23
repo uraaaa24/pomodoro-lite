@@ -10,12 +10,6 @@ const modeLabels: Record<TimerMode, string> = {
   longBreak: "Long Break",
 };
 
-const nextLabels: Record<TimerMode, string> = {
-  focus: "Short Break",
-  shortBreak: "Focus",
-  longBreak: "Focus",
-};
-
 const defaultDurations: Durations = {
   focus: 25 * 60,
   shortBreak: 5 * 60,
@@ -34,11 +28,6 @@ const sessionLabel = document.querySelector<HTMLElement>("#session-label");
 const progressBar = document.querySelector<HTMLElement>("#progress-bar");
 const toggleButton = document.querySelector<HTMLButtonElement>("#toggle-button");
 const resetButton = document.querySelector<HTMLButtonElement>("#reset-button");
-const skipButton = document.querySelector<HTMLButtonElement>("#skip-button");
-const completedCount = document.querySelector<HTMLElement>("#completed-count");
-const cycleCount = document.querySelector<HTMLElement>("#cycle-count");
-const nextSession = document.querySelector<HTMLElement>("#next-session");
-const settingsForm = document.querySelector<HTMLFormElement>("#settings-form");
 const modeTabs = document.querySelectorAll<HTMLButtonElement>(".mode-tab");
 
 function formatTime(totalSeconds: number) {
@@ -75,24 +64,12 @@ function render() {
     toggleButton.textContent = isRunning ? "Pause" : "Start";
   }
 
-  if (completedCount) {
-    completedCount.textContent = completedFocusSessions.toString();
-  }
-
-  if (cycleCount) {
-    cycleCount.textContent = `${(completedFocusSessions % 4) + 1} / 4`;
-  }
-
-  if (nextSession) {
-    nextSession.textContent = currentMode === "focus" && (completedFocusSessions + 1) % 4 === 0 ? "Long Break" : nextLabels[currentMode];
-  }
-
   modeTabs.forEach((tab) => {
     const isActive = tab.dataset.mode === currentMode;
-    tab.classList.toggle("bg-[#66715d]", isActive);
-    tab.classList.toggle("text-[#fbf7ef]", isActive);
+    tab.classList.toggle("bg-[#C8E6D2]", isActive);
+    tab.classList.toggle("text-[#2f302e]", isActive);
     tab.classList.toggle("bg-transparent", !isActive);
-    tab.classList.toggle("text-[#777264]", !isActive);
+    tab.classList.toggle("text-[#8a8d88]", !isActive);
     tab.setAttribute("aria-selected", String(isActive));
   });
 
@@ -168,40 +145,9 @@ function resetTimer() {
   render();
 }
 
-function readDurationInput(id: string, fallback: number) {
-  const input = document.querySelector<HTMLInputElement>(id);
-  const minutes = Number(input?.value);
-
-  if (!Number.isFinite(minutes) || minutes < 1) {
-    return fallback;
-  }
-
-  return Math.round(minutes) * 60;
-}
-
-function updateDurationsFromForm() {
-  const previousTotal = durations[currentMode];
-
-  durations = {
-    focus: readDurationInput("#focus-minutes", defaultDurations.focus),
-    shortBreak: readDurationInput("#short-break-minutes", defaultDurations.shortBreak),
-    longBreak: readDurationInput("#long-break-minutes", defaultDurations.longBreak),
-  };
-
-  if (!isRunning && remainingSeconds === previousTotal) {
-    remainingSeconds = durations[currentMode];
-  } else if (remainingSeconds > durations[currentMode]) {
-    remainingSeconds = durations[currentMode];
-  }
-
-  render();
-}
-
 function bindEvents() {
   toggleButton?.addEventListener("click", toggleTimer);
   resetButton?.addEventListener("click", resetTimer);
-  skipButton?.addEventListener("click", goToNextMode);
-  settingsForm?.addEventListener("input", updateDurationsFromForm);
 
   modeTabs.forEach((tab) => {
     tab.addEventListener("click", () => {

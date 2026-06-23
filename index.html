@@ -7,72 +7,31 @@
     <script type="module" src="/src/main.ts" defer></script>
   </head>
 
-  <body class="min-h-screen min-w-80 bg-[#f4efe6] bg-[radial-gradient(circle_at_50%_-10%,rgba(222,210,190,0.72),transparent_32rem),linear-gradient(180deg,#f7f2e9_0%,#f4efe6_100%)] font-sans text-[#2d3028] antialiased">
-    <main class="grid min-h-screen place-items-center p-6 max-[520px]:items-start max-[520px]:p-3.5" aria-labelledby="app-title">
-      <section class="w-full max-w-[520px] rounded-[28px] border border-[#49443824] bg-[#fbf7ef]/90 p-[clamp(24px,5vw,40px)] shadow-[0_24px_70px_rgba(58,51,40,0.13)] max-[520px]:rounded-[22px]" aria-live="polite">
-        <header class="mb-7 flex items-end justify-between gap-6 max-[520px]:grid max-[520px]:gap-2.5">
-          <div>
-            <p class="mb-2 text-[0.72rem] font-bold uppercase tracking-[0.18em] text-[#8c634d]">Pomodoro Lite</p>
-            <h1 id="app-title" class="mb-0 font-serif text-[clamp(1.9rem,5vw,2.7rem)] font-medium leading-[1.05] tracking-[-0.05em]">Quiet Focus</h1>
-          </div>
-          <p class="mb-0 max-w-48 text-right text-sm leading-7 text-[#777264] max-[520px]:max-w-none max-[520px]:text-left">A calm rhythm for focus and rest.</p>
+  <body class="min-h-screen min-w-80 bg-[#f7f7f5] font-sans text-[#2f302e] antialiased">
+    <main class="grid min-h-screen place-items-center px-5 py-8" aria-labelledby="app-title">
+      <section class="w-full max-w-[360px] px-2 py-3 text-center" aria-live="polite">
+        <header class="mb-8">
+          <p class="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-[#8a8d88]">Pomodoro Lite</p>
+          <h1 id="app-title" class="text-base font-medium tracking-[-0.01em] text-[#333432]">Quiet timer for deep work</h1>
         </header>
 
-        <div class="mb-[34px] grid grid-cols-3 gap-1 rounded-full border border-[#49443824] bg-[#eee6d9] p-1" role="tablist" aria-label="Timer modes">
-          <button class="mode-tab rounded-full bg-[#66715d] px-3 py-2.5 text-sm font-bold text-[#fbf7ef]" type="button" data-mode="focus">Focus</button>
-          <button class="mode-tab rounded-full bg-transparent px-3 py-2.5 text-sm font-bold text-[#777264]" type="button" data-mode="shortBreak">Short</button>
-          <button class="mode-tab rounded-full bg-transparent px-3 py-2.5 text-sm font-bold text-[#777264]" type="button" data-mode="longBreak">Long</button>
+        <div class="mb-7 rounded-full bg-white p-1" role="tablist" aria-label="Timer modes">
+          <button class="mode-tab rounded-full bg-[#C8E6D2] px-4 py-2 text-xs font-medium text-[#2f302e]" type="button" data-mode="focus">Focus</button>
+          <button class="mode-tab rounded-full bg-transparent px-4 py-2 text-xs font-medium text-[#8a8d88]" type="button" data-mode="shortBreak">Short</button>
+          <button class="mode-tab rounded-full bg-transparent px-4 py-2 text-xs font-medium text-[#8a8d88]" type="button" data-mode="longBreak">Long</button>
         </div>
 
-        <div class="text-center">
-          <p class="mb-2.5 text-[0.92rem] font-bold text-[#777264]" id="session-label">Focus Session</p>
-          <time class="mb-7 block font-serif text-[clamp(5rem,21vw,8rem)] font-medium leading-[0.92] tracking-[-0.08em] text-[#2d3028]" id="time-display" datetime="PT25M">25:00</time>
-          <div class="h-2 overflow-hidden rounded-full bg-[#e4e9dd]" aria-hidden="true">
-            <div class="h-full w-0 rounded-full bg-[#66715d] transition-[width] duration-300 ease-out" id="progress-bar"></div>
-          </div>
+        <p class="mb-4 text-sm font-medium text-[#8a8d88]" id="session-label">Focus Session</p>
+        <time class="mb-7 block font-mono text-[clamp(4.75rem,24vw,6.75rem)] font-light leading-none tracking-[-0.08em] text-[#222222]" id="time-display" datetime="PT25M">25:00</time>
+
+        <div class="mx-auto mb-8 h-1 w-full max-w-[300px] overflow-hidden rounded-full bg-white" aria-hidden="true">
+          <div class="h-full w-0 rounded-full bg-[#A8D5BA] transition-[width] duration-300 ease-out" id="progress-bar"></div>
         </div>
 
-        <div class="mt-7 grid grid-cols-[1.5fr_1fr_1fr] gap-2.5 max-[520px]:grid-cols-1" aria-label="Timer controls">
-          <button class="rounded-2xl border border-[#49443824] bg-[#66715d] px-3.5 py-3 font-extrabold text-[#fbf7ef] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#66715d3d]" id="toggle-button" type="button">Start</button>
-          <button class="rounded-2xl border border-[#49443824] bg-transparent px-3.5 py-3 font-extrabold text-[#2d3028] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#66715d3d]" id="reset-button" type="button">Reset</button>
-          <button class="rounded-2xl border border-[#49443824] bg-transparent px-3.5 py-3 font-extrabold text-[#2d3028] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#66715d3d]" id="skip-button" type="button">Skip</button>
+        <div class="flex items-center justify-center gap-3" aria-label="Timer controls">
+          <button class="min-w-28 rounded-2xl bg-[#C8E6D2] px-5 py-3 text-sm font-medium text-[#2f302e] transition-colors hover:bg-[#B7DFC8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#A8D5BA]" id="toggle-button" type="button">Start</button>
+          <button class="rounded-2xl border border-[#e4e4e0] bg-transparent px-5 py-3 text-sm font-medium text-[#62645f] transition-colors hover:border-[#C8E6D2] hover:text-[#2f302e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#A8D5BA]" id="reset-button" type="button">Reset</button>
         </div>
-
-        <section class="my-[18px] grid grid-cols-3 gap-2.5 max-[520px]:grid-cols-1" aria-label="Pomodoro status">
-          <article class="grid min-w-0 gap-1 rounded-[18px] border border-[#49443824] bg-white/50 p-3.5">
-            <span class="overflow-hidden text-ellipsis whitespace-nowrap font-serif text-[1.45rem] font-medium leading-tight text-[#2d3028]" id="completed-count">0</span>
-            <span class="text-xs font-extrabold tracking-[0.06em] text-[#777264]">Done</span>
-          </article>
-          <article class="grid min-w-0 gap-1 rounded-[18px] border border-[#49443824] bg-white/50 p-3.5">
-            <span class="overflow-hidden text-ellipsis whitespace-nowrap font-serif text-[1.45rem] font-medium leading-tight text-[#2d3028]" id="cycle-count">1 / 4</span>
-            <span class="text-xs font-extrabold tracking-[0.06em] text-[#777264]">Cycle</span>
-          </article>
-          <article class="grid min-w-0 gap-1 rounded-[18px] border border-[#49443824] bg-white/50 p-3.5">
-            <span class="overflow-hidden text-ellipsis whitespace-nowrap font-serif text-lg font-medium leading-tight text-[#2d3028]" id="next-session">Short Break</span>
-            <span class="text-xs font-extrabold tracking-[0.06em] text-[#777264]">Next</span>
-          </article>
-        </section>
-
-        <section class="grid grid-cols-[auto_1fr] items-end gap-5 border-t border-[#49443824] pt-5 max-[520px]:grid-cols-1" aria-labelledby="settings-title">
-          <div>
-            <p class="mb-2 text-[0.72rem] font-bold uppercase tracking-[0.18em] text-[#8c634d]">Settings</p>
-            <h2 id="settings-title" class="mb-0 font-serif text-xl font-medium tracking-[-0.03em]">Time</h2>
-          </div>
-          <form class="grid grid-cols-3 gap-2.5 max-[520px]:grid-cols-1" id="settings-form">
-            <label class="grid gap-1.5 text-xs font-extrabold tracking-[0.04em] text-[#777264]">
-              Focus
-              <input class="w-full rounded-[14px] border border-[#49443824] bg-white/60 px-3 py-2.5 font-extrabold text-[#2d3028] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#66715d3d]" id="focus-minutes" name="focus" type="number" min="1" max="120" value="25" aria-label="Focus minutes" />
-            </label>
-            <label class="grid gap-1.5 text-xs font-extrabold tracking-[0.04em] text-[#777264]">
-              Short
-              <input class="w-full rounded-[14px] border border-[#49443824] bg-white/60 px-3 py-2.5 font-extrabold text-[#2d3028] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#66715d3d]" id="short-break-minutes" name="shortBreak" type="number" min="1" max="60" value="5" aria-label="Short break minutes" />
-            </label>
-            <label class="grid gap-1.5 text-xs font-extrabold tracking-[0.04em] text-[#777264]">
-              Long
-              <input class="w-full rounded-[14px] border border-[#49443824] bg-white/60 px-3 py-2.5 font-extrabold text-[#2d3028] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#66715d3d]" id="long-break-minutes" name="longBreak" type="number" min="1" max="90" value="15" aria-label="Long break minutes" />
-            </label>
-          </form>
-        </section>
       </section>
     </main>
   </body>
