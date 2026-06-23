@@ -19,9 +19,6 @@ const TodayFocusSummary = ({ onClose, summary }: TodayFocusSummaryProps) => {
       panelId="today-focus-panel"
       title="Today's focus"
     >
-      <p className="m-0 text-[0.68rem] font-semibold tracking-[0.18em] text-[#8a8d88] uppercase">
-        Saved for today
-      </p>
       <div className={summaryRowClassName}>
         <span className={summaryLabelClassName}>Focused time</span>
         <span className={summaryValueClassName}>{summary.focusedMinutes} min</span>
