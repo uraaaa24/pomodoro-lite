@@ -12,6 +12,7 @@ import Button from "./components/shared/button";
 import TimerControls from "./components/timer-controls";
 import TimerDisplay from "./components/timer-display";
 import TimerSettings from "./components/timer-settings";
+import TodayFocusSummary from "./components/today-focus-summary";
 
 export const App = () => {
   const { settings, updateSetting } = usePomodoroSettings();
@@ -57,6 +58,7 @@ export const App = () => {
           onReset={handleReset}
           onStart={handleStartWithSound}
         />
+        <TodayFocusSummary completedFocusSessions={state.completedFocusSessions} />
         <Button
           aria-controls="settings-panel"
           aria-expanded={settingsPanel.isOpen}
