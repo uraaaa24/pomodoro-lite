@@ -1,4 +1,5 @@
-import { Settings as SettingsIcon } from "lucide-react";
+import { BarChart3, Settings as SettingsIcon } from "lucide-react";
+import { useState } from "react";
 
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { usePomodoroSettings } from "./hooks/usePomodoroSettings";
@@ -20,6 +21,7 @@ export const App = () => {
     settings.autoStartNextSession,
   );
   const settingsPanel = useSettingsPanel();
+  const [isFocusSummaryOpen, setIsFocusSummaryOpen] = useState(false);
   const statusMessage = useSessionCompletion({ lastCompletedSession: state.lastCompletedSession, settings });
 
   useDocumentTitle(`${formatTime(state.remainingSeconds)} - ${MODE_LABELS[state.currentMode]} | Pomodoro Lite`);
@@ -30,6 +32,23 @@ export const App = () => {
     }
 
     handleStart();
+  };
+
+  const handleFocusSummaryToggle = () => {
+    if (settingsPanel.isOpen) {
+      settingsPanel.close();
+    }
+
+    setIsFocusSummaryOpen((current) => !current);
+  };
+
+  const handleFocusSummaryClose = () => {
+    setIsFocusSummaryOpen(false);
+  };
+
+  const handleSettingsToggle = () => {
+    setIsFocusSummaryOpen(false);
+    settingsPanel.toggle();
   };
 
   const handleSettingsUpdate = <Key extends keyof typeof settings>(key: Key, value: (typeof settings)[Key]) => {
@@ -58,18 +77,33 @@ export const App = () => {
           onReset={handleReset}
           onStart={handleStartWithSound}
         />
-        <TodayFocusSummary completedFocusSessions={state.completedFocusSessions} />
+        <Button
+          aria-controls="today-focus-panel"
+          aria-expanded={isFocusSummaryOpen}
+          aria-label="Open focus summary"
+          className="absolute top-0 left-2 bg-white/70"
+          onClick={handleFocusSummaryToggle}
+          size="icon"
+        >
+          <BarChart3 aria-hidden="true" size={18} strokeWidth={2} />
+        </Button>
         <Button
           aria-controls="settings-panel"
           aria-expanded={settingsPanel.isOpen}
           aria-label="Open preferences"
           className="absolute top-0 right-2 bg-white/70"
-          onClick={settingsPanel.toggle}
+          onClick={handleSettingsToggle}
           ref={settingsPanel.buttonRef}
           size="icon"
         >
           <SettingsIcon aria-hidden="true" size={18} strokeWidth={2} />
         </Button>
+        {isFocusSummaryOpen ? (
+          <TodayFocusSummary
+            completedFocusSessions={state.completedFocusSessions}
+            onClose={handleFocusSummaryClose}
+          />
+        ) : null}
         {settingsPanel.isOpen ? (
           <div ref={settingsPanel.panelRef}>
             <TimerSettings
