@@ -10,26 +10,25 @@ type ChimeNote = {
 
 const DEFAULT_NOTE_DURATION_SECONDS = 0.34;
 const CHIME_GAIN = 0.16;
-const COMPLETION_CHIMES: Record<PomodoroMode, ChimeNote[]> = {
+const SESSION_START_CHIMES: Record<PomodoroMode, ChimeNote[]> = {
   focus: [
-    { frequency: 587.33, offsetSeconds: 0 },
-    { frequency: 739.99, offsetSeconds: 0.16 },
-    { frequency: 880, offsetSeconds: 0.32 },
-    { frequency: 739.99, offsetSeconds: 0.52 },
-    { frequency: 987.77, offsetSeconds: 0.72, durationSeconds: 0.48 },
+    { frequency: 523.25, offsetSeconds: 0 },
+    { frequency: 659.25, offsetSeconds: 0.14 },
+    { frequency: 783.99, offsetSeconds: 0.28 },
+    { frequency: 1046.5, offsetSeconds: 0.48, durationSeconds: 0.44 },
   ],
   shortBreak: [
-    { frequency: 659.25, offsetSeconds: 0 },
-    { frequency: 587.33, offsetSeconds: 0.18 },
-    { frequency: 493.88, offsetSeconds: 0.36 },
-    { frequency: 587.33, offsetSeconds: 0.58, durationSeconds: 0.46 },
+    { frequency: 783.99, offsetSeconds: 0 },
+    { frequency: 659.25, offsetSeconds: 0.18 },
+    { frequency: 587.33, offsetSeconds: 0.36 },
+    { frequency: 659.25, offsetSeconds: 0.58, durationSeconds: 0.48 },
   ],
   longBreak: [
-    { frequency: 493.88, offsetSeconds: 0 },
-    { frequency: 587.33, offsetSeconds: 0.16 },
-    { frequency: 659.25, offsetSeconds: 0.32 },
-    { frequency: 739.99, offsetSeconds: 0.5 },
-    { frequency: 880, offsetSeconds: 0.72, durationSeconds: 0.52 },
+    { frequency: 880, offsetSeconds: 0 },
+    { frequency: 739.99, offsetSeconds: 0.18 },
+    { frequency: 659.25, offsetSeconds: 0.36 },
+    { frequency: 587.33, offsetSeconds: 0.58 },
+    { frequency: 493.88, offsetSeconds: 0.82, durationSeconds: 0.56 },
   ],
 };
 
@@ -46,7 +45,7 @@ const getAudioContext = () => {
   return sharedAudioContext;
 };
 
-export const prepareSessionCompleteSound = async () => {
+export const prepareSessionCueSound = async () => {
   const audioContext = getAudioContext();
 
   if (!audioContext || audioContext.state !== "suspended") {
@@ -56,7 +55,7 @@ export const prepareSessionCompleteSound = async () => {
   await audioContext.resume();
 };
 
-export const playSessionCompleteSound = async (completedMode: PomodoroMode) => {
+export const playSessionStartSound = async (startedMode: PomodoroMode) => {
   const audioContext = getAudioContext();
 
   if (!audioContext) {
@@ -73,12 +72,12 @@ export const playSessionCompleteSound = async (completedMode: PomodoroMode) => {
   masterGain.gain.setValueAtTime(CHIME_GAIN, now);
   masterGain.connect(audioContext.destination);
 
-  COMPLETION_CHIMES[completedMode].forEach((note) => {
+  SESSION_START_CHIMES[startedMode].forEach((note) => {
     playCozyPluck(audioContext, masterGain, note, now);
   });
 
   const chimeDurationMs = Math.max(
-    ...COMPLETION_CHIMES[completedMode].map(
+    ...SESSION_START_CHIMES[startedMode].map(
       (note) => (note.offsetSeconds + (note.durationSeconds ?? DEFAULT_NOTE_DURATION_SECONDS)) * 1000,
     ),
   );

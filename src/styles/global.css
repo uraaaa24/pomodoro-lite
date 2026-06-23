@@ -341,3 +341,8 @@ button {
     animation-iteration-count: 1 !important;
   }
 }
+
+.setting-button-group {
+  display: flex;
+  gap: 0.35rem;
+}

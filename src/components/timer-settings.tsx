@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import {
-  playSessionCompleteSound,
-  prepareSessionCompleteSound,
+  playSessionStartSound,
+  prepareSessionCueSound,
   requestDesktopNotificationPermission,
   showSessionCompleteNotification,
 } from "../lib/session-cues";
 import type { PomodoroSettings } from "../lib/settings";
+import type { PomodoroMode } from "../types/pomodoro";
 
 type TimerSettingsProps = {
   settings: PomodoroSettings;
@@ -30,9 +31,9 @@ export const TimerSettings = ({ settings, onClose, onUpdateSetting }: TimerSetti
     onUpdateSetting("desktopNotificationsEnabled", permission === "granted");
   };
 
-  const handleTestSound = async () => {
-    await prepareSessionCompleteSound();
-    await playSessionCompleteSound("focus");
+  const handleTestSound = async (startedMode: PomodoroMode) => {
+    await prepareSessionCueSound();
+    await playSessionStartSound(startedMode);
   };
 
   const handleTestNotification = async () => {
@@ -82,9 +83,14 @@ export const TimerSettings = ({ settings, onClose, onUpdateSetting }: TimerSetti
           />
           <span>Sound</span>
         </label>
-        <button className="setting-test-button" onClick={() => void handleTestSound()} type="button">
-          Test
-        </button>
+        <div className="setting-button-group" aria-label="Test sound cues">
+          <button className="setting-test-button" onClick={() => void handleTestSound("focus")} type="button">
+            Work
+          </button>
+          <button className="setting-test-button" onClick={() => void handleTestSound("shortBreak")} type="button">
+            Break
+          </button>
+        </div>
       </div>
       <div className="setting-row">
         <label className="setting-toggle">

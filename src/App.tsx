@@ -6,7 +6,7 @@ import { TimerSettings } from "./components/timer-settings";
 import { usePomodoroSettings } from "./hooks/usePomodoroSettings";
 import { usePomodoroTimer } from "./hooks/usePomodoroTimer";
 import { MODE_LABELS, formatTime } from "./lib/pomodoro";
-import { playSessionCompleteSound, prepareSessionCompleteSound, showSessionCompleteNotification } from "./lib/session-cues";
+import { playSessionStartSound, prepareSessionCueSound, showSessionCompleteNotification } from "./lib/session-cues";
 
 export const App = () => {
   const { settings, updateSetting } = usePomodoroSettings();
@@ -33,7 +33,7 @@ export const App = () => {
     );
 
     if (settings.soundEnabled) {
-      void playSessionCompleteSound(state.lastCompletedSession.completedMode);
+      void playSessionStartSound(state.lastCompletedSession.nextMode);
     }
 
     if (settings.desktopNotificationsEnabled) {
@@ -46,7 +46,7 @@ export const App = () => {
 
   const handleStartWithSound = () => {
     if (settings.soundEnabled) {
-      void prepareSessionCompleteSound();
+      void prepareSessionCueSound();
     }
 
     handleStart();
@@ -54,7 +54,7 @@ export const App = () => {
 
   const handleSettingsUpdate = <Key extends keyof typeof settings>(key: Key, value: (typeof settings)[Key]) => {
     if (key === "soundEnabled" && value) {
-      void prepareSessionCompleteSound();
+      void prepareSessionCueSound();
     }
 
     updateSetting(key, value);
