@@ -2,13 +2,35 @@ import { invoke, isTauri } from "@tauri-apps/api/core";
 import { MODE_LABELS } from "./pomodoro";
 import type { PomodoroMode } from "../types/pomodoro";
 
-const NOTE_DURATION_SECONDS = 0.42;
-const NOTE_GAP_SECONDS = 0.12;
-const CHIME_GAIN = 0.2;
-const COMPLETION_CHIMES: Record<PomodoroMode, number[]> = {
-  focus: [659.25, 783.99, 987.77],
-  shortBreak: [523.25, 659.25, 783.99],
-  longBreak: [440, 554.37, 659.25, 880],
+type ChimeNote = {
+  frequency: number;
+  offsetSeconds: number;
+  durationSeconds?: number;
+};
+
+const DEFAULT_NOTE_DURATION_SECONDS = 0.34;
+const CHIME_GAIN = 0.16;
+const COMPLETION_CHIMES: Record<PomodoroMode, ChimeNote[]> = {
+  focus: [
+    { frequency: 587.33, offsetSeconds: 0 },
+    { frequency: 739.99, offsetSeconds: 0.16 },
+    { frequency: 880, offsetSeconds: 0.32 },
+    { frequency: 739.99, offsetSeconds: 0.52 },
+    { frequency: 987.77, offsetSeconds: 0.72, durationSeconds: 0.48 },
+  ],
+  shortBreak: [
+    { frequency: 659.25, offsetSeconds: 0 },
+    { frequency: 587.33, offsetSeconds: 0.18 },
+    { frequency: 493.88, offsetSeconds: 0.36 },
+    { frequency: 587.33, offsetSeconds: 0.58, durationSeconds: 0.46 },
+  ],
+  longBreak: [
+    { frequency: 493.88, offsetSeconds: 0 },
+    { frequency: 587.33, offsetSeconds: 0.16 },
+    { frequency: 659.25, offsetSeconds: 0.32 },
+    { frequency: 739.99, offsetSeconds: 0.5 },
+    { frequency: 880, offsetSeconds: 0.72, durationSeconds: 0.52 },
+  ],
 };
 
 let sharedAudioContext: AudioContext | null = null;
@@ -51,38 +73,57 @@ export const playSessionCompleteSound = async (completedMode: PomodoroMode) => {
   masterGain.gain.setValueAtTime(CHIME_GAIN, now);
   masterGain.connect(audioContext.destination);
 
-  COMPLETION_CHIMES[completedMode].forEach((frequency, index) => {
-    const startTime = now + index * (NOTE_DURATION_SECONDS + NOTE_GAP_SECONDS);
-    playBellNote(audioContext, masterGain, frequency, startTime);
+  COMPLETION_CHIMES[completedMode].forEach((note) => {
+    playCozyPluck(audioContext, masterGain, note, now);
   });
 
-  const chimeDurationMs =
-    (COMPLETION_CHIMES[completedMode].length * (NOTE_DURATION_SECONDS + NOTE_GAP_SECONDS) + NOTE_DURATION_SECONDS) * 1000;
-  window.setTimeout(() => masterGain.disconnect(), chimeDurationMs);
+  const chimeDurationMs = Math.max(
+    ...COMPLETION_CHIMES[completedMode].map(
+      (note) => (note.offsetSeconds + (note.durationSeconds ?? DEFAULT_NOTE_DURATION_SECONDS)) * 1000,
+    ),
+  );
+  window.setTimeout(() => masterGain.disconnect(), chimeDurationMs + 100);
 };
 
-const playBellNote = (audioContext: AudioContext, destination: AudioNode, frequency: number, startTime: number) => {
-  const endTime = startTime + NOTE_DURATION_SECONDS;
-  const oscillator = audioContext.createOscillator();
-  const harmonic = audioContext.createOscillator();
-  const gain = audioContext.createGain();
+const playCozyPluck = (
+  audioContext: AudioContext,
+  destination: AudioNode,
+  { frequency, offsetSeconds, durationSeconds = DEFAULT_NOTE_DURATION_SECONDS }: ChimeNote,
+  baseTime: number,
+) => {
+  const startTime = baseTime + offsetSeconds;
+  const endTime = startTime + durationSeconds;
+  const body = audioContext.createOscillator();
+  const woodenClick = audioContext.createOscillator();
+  const filter = audioContext.createBiquadFilter();
+  const bodyGain = audioContext.createGain();
+  const clickGain = audioContext.createGain();
 
-  oscillator.type = "sine";
-  harmonic.type = "triangle";
-  oscillator.frequency.setValueAtTime(frequency, startTime);
-  harmonic.frequency.setValueAtTime(frequency * 2, startTime);
-  gain.gain.setValueAtTime(0.0001, startTime);
-  gain.gain.exponentialRampToValueAtTime(1, startTime + 0.025);
-  gain.gain.exponentialRampToValueAtTime(0.0001, endTime);
+  body.type = "sine";
+  woodenClick.type = "triangle";
+  body.frequency.setValueAtTime(frequency, startTime);
+  woodenClick.frequency.setValueAtTime(frequency * 3, startTime);
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(2400, startTime);
+  filter.Q.setValueAtTime(0.8, startTime);
 
-  oscillator.connect(gain);
-  harmonic.connect(gain);
-  gain.connect(destination);
+  bodyGain.gain.setValueAtTime(0.0001, startTime);
+  bodyGain.gain.exponentialRampToValueAtTime(1, startTime + 0.018);
+  bodyGain.gain.exponentialRampToValueAtTime(0.0001, endTime);
+  clickGain.gain.setValueAtTime(0.0001, startTime);
+  clickGain.gain.exponentialRampToValueAtTime(0.18, startTime + 0.01);
+  clickGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.09);
 
-  oscillator.start(startTime);
-  harmonic.start(startTime);
-  oscillator.stop(endTime);
-  harmonic.stop(endTime);
+  body.connect(bodyGain);
+  woodenClick.connect(clickGain);
+  bodyGain.connect(filter);
+  clickGain.connect(filter);
+  filter.connect(destination);
+
+  body.start(startTime);
+  woodenClick.start(startTime);
+  body.stop(endTime);
+  woodenClick.stop(startTime + 0.1);
 };
 
 export const requestDesktopNotificationPermission = async () => {
