@@ -75,13 +75,20 @@ export const App = () => {
         />
         <button
           aria-expanded={isSettingsOpen}
+          aria-label="Open settings"
           className="settings-button"
           onClick={() => setIsSettingsOpen((current) => !current)}
           type="button"
         >
-          Settings
+          ⚙
         </button>
-        {isSettingsOpen ? <TimerSettings settings={settings} onUpdateSetting={handleSettingsUpdate} /> : null}
+        {isSettingsOpen ? (
+          <TimerSettings
+            settings={settings}
+            onClose={() => setIsSettingsOpen(false)}
+            onUpdateSetting={handleSettingsUpdate}
+          />
+        ) : null}
       </section>
     </main>
   );

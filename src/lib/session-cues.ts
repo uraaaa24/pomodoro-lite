@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import { MODE_LABELS } from "./pomodoro";
 import type { PomodoroMode } from "../types/pomodoro";
 
@@ -60,10 +60,8 @@ export const playSessionCompleteSound = async (completedMode: PomodoroMode) => {
   oscillator.stop(now + SOUND_DURATION_SECONDS);
 };
 
-const isTauriRuntime = () => "__TAURI_INTERNALS__" in window;
-
 export const requestDesktopNotificationPermission = async () => {
-  if (isTauriRuntime()) {
+  if (isTauri()) {
     return "granted";
   }
 
@@ -84,7 +82,7 @@ export const showSessionCompleteNotification = async (completedMode: PomodoroMod
   const title = `${completedLabel} complete`;
   const body = `Next up: ${nextLabel}.`;
 
-  if (isTauriRuntime()) {
+  if (isTauri()) {
     try {
       await invoke("show_desktop_notification", { title, body });
       return;
@@ -105,7 +103,6 @@ export const showSessionCompleteNotification = async (completedMode: PomodoroMod
 
 declare global {
   interface Window {
-    __TAURI_INTERNALS__?: unknown;
     webkitAudioContext?: typeof AudioContext;
   }
 }
